@@ -1,0 +1,20 @@
+
+Installation notes
+
+
+Checksums for releases can be obtained from the project’s
+web site at http://web.aeyoun.priv.no/p/fluxfonts/intro
+
+To install to the default locations, run `make install`.
+You can also set a custom directory prefix by running e.g.
+`make prefix=/opt install`.
+
+The program should be run as a system daemon with root permissions
+Daemons to run the program are configured automatically provided
+they can be detected. OS X (launchd), Ubuntu (upstart), and System
+V init (Debian) are supported. Running `make install-launchd`,
+`make install-upstart`, or `make install-sysvinit` can be used to
+reconfigure this again.
+
+Other daemon managers such as initng, and cron must be configured
+manually.

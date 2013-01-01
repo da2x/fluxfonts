@@ -1,0 +1,9 @@
+
+Attribution to project contributors
+
+
+Daniel Aleksandersen <http://web.aeyoun.priv.no/>
+Original idea and project maintainer. End-system integration.
+
+Daniel Nebdal <daniel@nebdal.net>,
+Contributed the CFF implementation and the main buffer handling.
