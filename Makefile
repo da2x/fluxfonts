@@ -271,7 +271,7 @@ clean:
 	rm -rf $(PROGRAM).dSYM
 
 distclean:
-	rm -rf $(DISTROOTDIR) $(TEMPDIR)/$(NAME)-$(VERSION) $(NAME)-$(VERSION)/ $(NAME)-$(VERSION).pkg $(NAME)-$(VERSION).tar.gz
+	rm -rf $(DISTROOTDIR) $(TEMPDIR)/$(NAME)-$(VERSION) $(LNAME)-$(VERSION)/ $(NAME)-$(VERSION).pkg $(LNAME)-$(VERSION).tar.gz
 
 maintainer-clean: clean distclean
 	rm -rf $(PROGRAM) *~ */*~ */*/*~
