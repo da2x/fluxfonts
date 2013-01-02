@@ -5,9 +5,10 @@ Installation notes
 Checksums for releases can be obtained from the project’s
 web site at http://web.aeyoun.priv.no/p/fluxfonts/intro
 
-To install to the default locations, run `make install`.
+To install to the default locations, run `make install-all`.
 You can also set a custom directory prefix by running e.g.
-`make prefix=/opt install`.
+`make prefix=/opt install-all`. `install-all` include system daemons
+and documentation. `install`, however, does not.
 
 The program should be run as a system daemon with root permissions
 Daemons to run the program are configured automatically provided
