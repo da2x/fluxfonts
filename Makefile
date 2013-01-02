@@ -84,6 +84,11 @@ CC ?= clang
 CFLAGS += -Wall -std=c99 -g
 
 # launchd, upstart, or sysvinit based on available directories
+
+ifneq ($(DAEMONCONF),skip)
+CONFIGURE_DAEMON = install-daemon
+endif
+
 ifneq ($(wildcard $(SYSVINITDIR)),)
 CONFIG_SYSVINIT = install-sysvinit
 DECONFIG_SYSVINIT = deconfigure-sysvinit
@@ -182,11 +187,10 @@ exit 0
 
 endef
 
-
 all: $(SRCS)
 	$(CC) $(LDFLAGS) $(CFLAGS) $(ARCH) $(SRCS) -o $(PROGRAM) -lm
 
-install: all install-bin install-doc $(CONFIG_LAUNCHD) $(CONFIG_UPSTART) $(CONFIG_SYSVINIT)
+install: all install-bin install-doc $(CONFIGURE_DAEMON)
 
 install-bin:
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(BINDIR)
@@ -195,6 +199,8 @@ install-bin:
 install-doc:
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(DOCDIR)
 	$(INSTALL_PROGRAM) $(INSTALLFLAGS) $(DOCS) $(DESTDIR)$(DOCDIR)
+
+install-daemon: $(CONFIG_LAUNCHD) $(CONFIG_UPSTART) $(CONFIG_SYSVINIT)
 
 install-dist-osx: $(NAME)-$(VERSION).pkg
 	/usr/sbin/installer --pkg $(NAME)-$(VERSION).pkg --PROGRAM /
