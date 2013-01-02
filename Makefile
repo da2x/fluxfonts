@@ -182,7 +182,7 @@ exit 0
 
 endef
 
-all: build install install-doc install-daemon
+all: build
 
 build: $(SRCS)
 	$(CC) $(LDFLAGS) $(CFLAGS) $(ARCH) $(SRCS) -o $(PROGRAM) -lm
