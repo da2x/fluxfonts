@@ -80,7 +80,7 @@ DEFAULTSUTIL = /usr/bin/defaults
 SERVICEUTIL = /usr/sbin/service
 INITDEFUTIL = /sbin/insserv
 OSXPKGBUILD = /usr/bin/pkgbuild
-CC = clang
+CC ?= clang
 CFLAGS += -Wall -std=c99 -g
 
 # launchd, upstart, or sysvinit based on available directories
