@@ -77,17 +77,23 @@ void util_daemonize_self( void ) {
     exit( EACCES );
 
   /* Redirect output to nowhere */
-  freopen( "/dev/null", "r", stdin );
-  freopen( "/dev/null", "w", stdout );
-  freopen( "/dev/null", "w", stderr );
+  if ( freopen( "/dev/null", "r", stdin  ) == NULL )
+    perror( "Failed to supress this output when redirecting stdin."  );
+  if ( freopen( "/dev/null", "w", stdout ) == NULL )
+    perror( "Failed to supress this output when redirecting stdout." );
+  if ( freopen( "/dev/null", "w", stderr ) == NULL )
+    perror( "Failed to supress this output when redirecting stderr." );
 }
 
 
 void util_init_rand( void ) {
 
-  int random_file = open( "/dev/urandom", O_RDONLY );
   int random_number;
-  read( random_file, &random_number, sizeof( random_number ) );
+  int random_file = open( "/dev/urandom", O_RDONLY );
+
+  if ( read( random_file, &random_number, sizeof( random_number) ) != sizeof( random_number ) )
+    perror( "Random error. Litterally. /dev/urandom did not produce any output." );
+
   close( random_file );
   srand( random_number );
 }

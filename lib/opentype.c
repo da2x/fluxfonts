@@ -66,7 +66,7 @@ BUFFER *assemble_opentype_font( struct names *font_names ) {
 
   struct cff_result *cff_res = set_table_cff( font_names );
   BUFFER *cff_buffer = cff_res->cffData;
-  
+
   OTF_TABLE_HEAD *table_head =  insert_full_table( fontbuffer, tablerecord_head, set_table_head() );
   insert_full_table( fontbuffer, tablerecord_hhea, set_table_hhea() );
   insert_full_table( fontbuffer, tablerecord_maxp, set_table_maxp( cff_res->indexChars->count ) );
@@ -107,7 +107,7 @@ BUFFER *assemble_opentype_font( struct names *font_names ) {
 
 void *insert_full_table( BUFFER *complete_font, OTF_TABLE_RECORD *head_entry, BUFFER *insert_me ) {
 	buffer_alloc( complete_font, 4 - ( complete_font->position % 4 ) ); /* Pad to a multiple of 4 */
-	
+
 	void *table = &complete_font->data[complete_font->position];
 	head_entry->offset = complete_font->position;
 	head_entry->length = insert_me->position;
@@ -115,6 +115,7 @@ void *insert_full_table( BUFFER *complete_font, OTF_TABLE_RECORD *head_entry, BU
 	free( insert_me );
 	return table;
 }
+
 
 int font_generator( void ) {
 
@@ -135,16 +136,29 @@ int font_generator( void ) {
   /* Assemble the actual font work */
   BUFFER *fontbuffer = assemble_opentype_font( font_names );
 
-  /* Record font installation to install log */
-  int font_list_file = open( fontsetlist, O_RDWR|O_CREAT|O_APPEND, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP );
-  write( font_list_file, font_names->postscriptName, strlen( font_names->postscriptName ) );
-  write( font_list_file, "\n", 1 );
-  close( font_list_file );
-
   /* Write out the buffer to the font file directly to installation directory */
   int otf_output_file = open( filepath, O_RDWR|O_CREAT|O_EXCL, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH );
-  write( otf_output_file, fontbuffer->data, fontbuffer->position );
-  close( otf_output_file );
+
+  if ( write( otf_output_file, fontbuffer->data, fontbuffer->position ) == fontbuffer->position ) {
+
+    /* Record font installation to install log */
+    int font_list_file = open( fontsetlist, O_RDWR|O_CREAT|O_APPEND, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP );
+    ssize_t font_list_file_writesize = write( font_list_file, font_names->postscriptName, strlen( font_names->postscriptName ) );
+    ssize_t font_list_file_writenlsize = write( font_list_file, "\n", 1 );
+
+    if ( ( font_list_file_writesize + font_list_file_writenlsize ) != ( strlen( font_names->postscriptName ) + 1 ) ) {
+      syslog( LOG_ERR, "Failed to log successful installation of %s.%s in %s. The font was installed but will not be removed as part of normal operation.", font_names->postscriptName, FONTFILE_EXTENSION, fontsetlist );
+    }
+
+    close( font_list_file );
+    close( otf_output_file );
+  }
+
+  else {
+    /* something went wrong with the write, delete the font */
+    close(  otf_output_file );
+    unlink( filepath );
+  }
 
   /* Free the last buffers */
   free( font_names->fontFamilyName );
