@@ -68,7 +68,7 @@ endif
 ifeq ($(shell sh -c 'uname -s'),Darwin)
 INSTALLFLAGS = -S
 LDFLAGS += -liconv
-ARCH = -arch x86_64 -arch i386
+OTHARCH = -arch x86_64 -arch i386
 PACKAGE_OSX = $(NAME)-$(VERSION).pkg
 TEMPDIR = /private/var/tmp
 endif
@@ -185,7 +185,7 @@ endef
 all: build
 
 build: $(SRCS)
-	$(CC) $(LDFLAGS) $(CFLAGS) $(ARCH) $(SRCS) -o $(PROGRAM) -lm
+	$(CC) $(LDFLAGS) $(CFLAGS) $(OTHARCH) $(SRCS) -o $(PROGRAM) -lm
 
 install: build
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(BINDIR)
