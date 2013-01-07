@@ -260,7 +260,8 @@ $(NAME)-$(VERSION).pkg: all configure-launchd
 	$(INSTALL_PROGRAM) -d $(DISTPKGDIR)$(DOCDIR)
 	$(INSTALL_PROGRAM) $(INSTALLFLAGS) $(PROGRAM) $(DISTPKGDIR)$(BINDIR)
 	$(INSTALL_PROGRAM) $(INSTALLFLAGS) $(DOCS) $(DISTPKGDIR)$(DOCDIR)
-	echo "#!$(SHELL)\n$(LAUNCHDUTIL) load $(LAUNCHDCONF)" > $(OSXPKGPOSTINSTALL)
+	echo "#!$(SHELL)\n$(LAUNCHDUTIL) load $(LAUNCHDCONF)\nexit 0" > $(OSXPKGPOSTINSTALL)
+        chmod +x $(OSXPKGPOSTINSTALL)
 	$(OSXPKGBUILD) --identifier $(REVERSE_DOMAIN) --version $(VERSION) --root $(DISTPKGDIR) --ownership recommended --scripts $(DISTSCRIPTSDIR) $(NAME)-$(VERSION).pkg
 
 $(LNAME)-$(VERSION).tar.gz: maintainer-clean
