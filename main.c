@@ -75,10 +75,10 @@ int main() {
     for ( int i=0; i < num_new_fonts; i++ ) {
       font_generator();
     }
-	if ( dict_file != NULL ) {
-	  munmap( dict_file->data, dict_file->size );
-	  free( dict_file );
-	  dict_file = NULL;
+    if ( dict_file != NULL ) {
+      munmap( dict_file->data, dict_file->size );
+      free( dict_file );
+      dict_file = NULL;
     }
 
     /* Post install */
