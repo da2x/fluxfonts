@@ -41,24 +41,24 @@ void util_single_process_lock( void ) {
   char* lockfile = ( char* ) malloc( ( strlen( "/run/lock/" ) + strlen( PROGRAM_NAME ) + 1 ) );
   *lockfile = '\0';
 
-  if ( access( "/run/lock/", R_OK | W_OK ) == 0 )
+  if ( access( "/run/lock/", R_OK | W_OK | X_OK ) == 0 )
     strcat( lockfile, "/run/lock/" );
-  else if ( access( "/var/lock/", R_OK | W_OK ) == 0 )
+  else if ( access( "/var/lock/", R_OK | W_OK | X_OK ) == 0 )
     strcat( lockfile, "/var/lock/" );
   else {
-    syslog( LOG_CRIT, "Neither the /run/lock/ nor /var/lock/ directories are read-writeable!" );
+    syslog( LOG_CRIT, "Neither the `/run/lock/` nor `/var/lock/` directories are read-writeable!" );
     exit( EACCES );
   }
 
   strcat( lockfile, PROGRAM_NAME );
 
   int lfd = -1;
-  lfd = open( lockfile, O_RDONLY|O_CREAT|O_NONBLOCK, 0640 );
+  lfd = open( lockfile, O_RDONLY | O_CREAT | O_NONBLOCK, 0640 );
   if ( lfd < 0 ) {
     syslog( LOG_ERR, "Cannot open lock file %s (%s)", lockfile, strerror( errno ) );
     exit( errno );
   }
-  if ( flock(lfd, LOCK_EX|LOCK_NB) != 0 ) {
+  if ( flock( lfd, LOCK_EX | LOCK_NB ) != 0 ) {
     syslog( LOG_ERR, "Cannot get lock on file %s (%s)", lockfile, strerror( errno ) );
     exit( errno );
   }
@@ -105,23 +105,41 @@ void util_init_rand( void ) {
   int random_file = open( "/dev/urandom", O_RDONLY );
 
   if ( read( random_file, &random_number, sizeof( random_number) ) != sizeof( random_number ) )
-    perror( "Random error. Litterally. /dev/urandom did not produce any output." );
+    perror( "Random error. Literally. /dev/urandom did not produce any output." );
 
   close( random_file );
   srand( random_number );
 }
 
 
-char* util_get_varlibdir( void ) {
+char* util_get_datadir( void ) {
 
-  char* varlibdir = ( char* ) malloc( 1 );
-  *varlibdir = '\0';
+  char* libdir = ( char* ) malloc( ( strlen( "/var/lib/" ) + 1 ) );
+  *libdir = '\0';
+  strcat( libdir, "/var/lib/" );
 
-  varlibdir = util_descend_required_dir( varlibdir, "/var",  0755 );
-  varlibdir = util_descend_required_dir( varlibdir, "lib", 0755 );
-  varlibdir = util_descend_required_dir( varlibdir, PROGRAM_NAME, 0775 );
+  char* datadir = ( char* ) malloc( ( strlen( libdir ) + strlen( PROGRAM_NAME ) + 2 ) );
+  *datadir = '\0';
 
-  return varlibdir;
+  strcpy( datadir, libdir );
+  strcat( datadir, PROGRAM_NAME );
+  strcat( datadir, "/" );
+
+  if ( access( datadir, R_OK | W_OK | X_OK ) != 0 ) {
+    if ( access( libdir, R_OK | W_OK | X_OK ) == 0 ) {
+      /* optimistic problem correction */
+      mkdir( datadir, 0750 );
+      chmod( datadir, 0750 );
+    }
+    if ( access( datadir, R_OK | W_OK | X_OK ) != 0 ) {
+      syslog( LOG_ERR, "The `%s` directory is not read-writeable or could not be created.", datadir );
+      exit( EACCES );
+    }
+  }
+
+  free( libdir );
+
+  return datadir;
 }
 
 

@@ -50,7 +50,7 @@ void util_single_process_lock( void );
 void util_daemonize_self( void );
 void util_init_rand( void );
 int util_maxpow2( int val );
-char* util_get_varlibdir( void );
+char* util_get_datadir( void );
 char* util_get_fontdir( void );
 int util_test_path_access( char* path );
 void util_require_dir_access( char* path );

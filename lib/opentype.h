@@ -58,7 +58,7 @@ void *insert_full_table( BUFFER *complete_font, OTF_TABLE_RECORD *head_entry, BU
 int font_generator( void );
 
 
-extern char *varlibdir;
+extern char *datadir;
 extern char *fontsetlist;
 extern char *fontdir;
 

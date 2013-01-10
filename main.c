@@ -36,7 +36,7 @@
 #include "main.h"
 
 
-char *varlibdir = NULL;
+char *datadir = NULL;
 char *fontsetlist = NULL;
 char *fontdir = NULL;
 
@@ -46,11 +46,11 @@ int main() {
   util_daemonize_self( );
   util_single_process_lock( );
 
-  if ( varlibdir == NULL )
-    varlibdir = util_get_varlibdir();
+  if ( datadir == NULL )
+    datadir = util_get_datadir();
   if ( fontsetlist == NULL ) {
-    fontsetlist = ( char* ) calloc( ( strlen( varlibdir ) + strlen( INSTALLED_FONTS_FILE ) + 1 ), sizeof( char ) );
-    strcat( fontsetlist, varlibdir );
+    fontsetlist = ( char* ) calloc( ( strlen( datadir ) + strlen( INSTALLED_FONTS_FILE ) + 1 ), sizeof( char ) );
+    strcat( fontsetlist, datadir );
     strcat( fontsetlist, INSTALLED_FONTS_FILE );
   }
   if ( fontdir == NULL )
@@ -62,8 +62,8 @@ int main() {
   for ( ;; ) {
 
     /* Check that required folders are still in place. Recreate or exit when needed. */
-    if ( !util_test_path_access ( varlibdir ) )
-      util_get_varlibdir();
+    if ( !util_test_path_access ( datadir ) )
+      util_get_datadir();
     if ( !util_test_path_access ( fontdir ) )
       util_get_fontdir();
 
