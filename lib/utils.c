@@ -38,7 +38,20 @@
 
 void util_single_process_lock( void ) {
 
-  char *lockfile = util_get_lockfile( );
+  char* lockfile = ( char* ) malloc( ( strlen( "/run/lock/" ) + strlen( PROGRAM_NAME ) + 1 ) );
+  *lockfile = '\0';
+
+  if ( access( "/run/lock/", R_OK | W_OK ) == 0 )
+    strcat( lockfile, "/run/lock/" );
+  else if ( access( "/var/lock/", R_OK | W_OK ) == 0 )
+    strcat( lockfile, "/var/lock/" );
+  else {
+    syslog( LOG_CRIT, "Neither the /run/lock/ nor /var/lock/ directories are read-writeable!" );
+    exit( EACCES );
+  }
+
+  strcat( lockfile, PROGRAM_NAME );
+
   int lfd = -1;
   lfd = open( lockfile, O_RDONLY|O_CREAT|O_NONBLOCK, 0640 );
   if ( lfd < 0 ) {
@@ -46,8 +59,8 @@ void util_single_process_lock( void ) {
     exit( errno );
   }
   if ( flock(lfd, LOCK_EX|LOCK_NB) != 0 ) {
-      syslog( LOG_ERR, "Cannot get lock on file %s (%s)", lockfile, strerror( errno ) );
-      exit( errno );
+    syslog( LOG_ERR, "Cannot get lock on file %s (%s)", lockfile, strerror( errno ) );
+    exit( errno );
   }
 
   free ( lockfile ); /* path only */
@@ -96,23 +109,6 @@ void util_init_rand( void ) {
 
   close( random_file );
   srand( random_number );
-}
-
-
-char* util_get_lockfile( void ) {
-
-  char* lockfile = ( char* ) malloc( 1 );
-  *lockfile = '\0';
-
-  if( util_test_path_access( "/run/" ) )
-    lockfile = util_descend_required_dir( lockfile, "/run",  0755 );
-  else /* older Linuses and OS X. */
-    lockfile = util_descend_required_dir( lockfile, "/var",  0755 );
-  lockfile = util_descend_required_dir( lockfile, "lock", 0777 );
-  lockfile = realloc( lockfile, strlen( "/run/lock/" ) + strlen( PROGRAM_NAME ) + 2 );
-  strcat( lockfile, PROGRAM_NAME );
-
-  return lockfile;
 }
 
 
