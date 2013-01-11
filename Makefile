@@ -37,7 +37,7 @@ REVERSE_DOMAIN = no.priv.daniel.$(LNAME)
 SHORTDESC = $(NAME), a continual font generator for increased privacy.
 LONGDDESC = The $(PROGRAM) daemon for $(SHORTDESC)
 
-VERSION = 1.0
+VERSION = 1.1
 AUTHOR = Daniel Aleksandersen
 
 SRCS = main.c $(wildcard lib/*.c) $(wildcard lib/tables/*.c)
