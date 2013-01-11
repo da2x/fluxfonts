@@ -114,9 +114,7 @@ void util_init_rand( void ) {
 
 char* util_get_datadir( void ) {
 
-  char* libdir = ( char* ) malloc( ( strlen( "/var/lib/" ) + 1 ) );
-  *libdir = '\0';
-  strcat( libdir, "/var/lib/" );
+  char* libdir = "/var/lib/";
 
   char* datadir = ( char* ) malloc( ( strlen( libdir ) + strlen( PROGRAM_NAME ) + 2 ) );
   *datadir = '\0';
@@ -137,8 +135,6 @@ char* util_get_datadir( void ) {
     }
   }
 
-  free( libdir );
-
   return datadir;
 }
 
@@ -149,59 +145,31 @@ char* util_get_fontdir( void ) {
    * font directories based on the Filesystem Hierarchy standard.
    */
 
-  char* fontdir = ( char* ) malloc( 1 );
-  *fontdir = '\0';
+  char* fontdir;
+  char* osxdir = "/Library/Fonts/";
+  char* localsharedir = "/usr/local/share/fonts/";
+  char* usrsharedir = "/usr/share/fonts/";
 
-  if( util_test_path_access( "/Library/Fonts/" ) ) { /* assume it is OS X */
-    fontdir = util_descend_required_dir( fontdir, "/Library/Fonts", 0775 );
-  }
+  if ( access( osxdir, R_OK | W_OK | X_OK ) == 0 )
+    fontdir = osxdir;
+  else if ( access( localsharedir, R_OK | W_OK | X_OK ) == 0 )
+    fontdir = localsharedir;
+  else if ( access( usrsharedir, R_OK | W_OK | X_OK ) == 0 )
+    fontdir = usrsharedir;
+  else {
+    char* username = getlogin();
+    if ( username != NULL )
+      syslog( LOG_ERR, "Neither the `%s`, `%s`, nor `%s` (OS X only) directories are read-writeable! The `%s` user (or a group it belongs to) need these permissions.", localsharedir, usrsharedir, osxdir, username );
+    else
+      syslog( LOG_ERR, "Neither the `%s`, `%s`, nor `%s` (OS X only) directories are read-writeable! The user who runs the process [could not be determined] (or a group it belongs to) need these permissions.", localsharedir, usrsharedir, osxdir );
 
-  else if( util_test_path_access( "/usr/local/share/fonts/" ) ) {
-    fontdir = util_descend_required_dir( fontdir, "/usr",  0755 );
-    fontdir = util_descend_required_dir( fontdir, "local", 0755 );
-    fontdir = util_descend_required_dir( fontdir, "share", 0755 );
-    fontdir = util_descend_required_dir( fontdir, "fonts", 0775 );
-  }
-
-  else { /* fallback. */
-    fontdir = util_descend_required_dir( fontdir, "/usr",  0755 );
-    fontdir = util_descend_required_dir( fontdir, "share", 0755 );
-    fontdir = util_descend_required_dir( fontdir, "fonts", 0775 );
-  }
-
-  return fontdir;
-}
-
-
-int util_test_path_access( char* path ) { /* true with access */
-
-  if ( access( path, R_OK | X_OK | W_OK ) == 0 )
-    return 1;
-  return 0;
-}
-
-
-void util_require_dir_access( char* path ) {
-
-  /* Only used for absolutely required directories. Will exit with insufficient permissions. */
-  if ( !util_test_path_access( path ) ) {
-    syslog( LOG_ERR, "Directory at %s is not accessible. (%s)", path, strerror( errno ) );
     exit( EACCES );
   }
-}
+  
+  char* returndir = ( char* ) malloc( ( strlen( fontdir ) + 1 ) );
+  strcpy( returndir, fontdir );
 
-
-char* util_descend_required_dir( char* dirpath, const char* subdir, int permissions ) {
-
-  char* returnpath = ( char* ) calloc( ( strlen( dirpath ) + strlen( subdir ) + 2 ), sizeof( char ) );
-  strcat( returnpath, dirpath );
-  strcat( returnpath, subdir );
-  strcat( returnpath, "/" );
-  free( dirpath );
-  mkdir( returnpath, permissions );
-  util_require_dir_access( returnpath );
-
-  return returnpath;
+  return returndir;
 }
 
 

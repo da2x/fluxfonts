@@ -62,9 +62,9 @@ int main() {
   for ( ;; ) {
 
     /* Check that required folders are still in place. Recreate or exit when needed. */
-    if ( !util_test_path_access ( datadir ) )
+    if ( access( datadir, R_OK | X_OK | W_OK ) != 0 )
       util_get_datadir();
-    if ( !util_test_path_access ( fontdir ) )
+    if ( access( fontdir, R_OK | X_OK | W_OK ) != 0 )
       util_get_fontdir();
 
     /* Delete all previously installed fonts */
