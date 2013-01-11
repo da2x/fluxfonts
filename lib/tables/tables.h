@@ -47,7 +47,7 @@ typedef struct st_otf_offset_table {
       uint16_t minor;
     } version;
     char tag[4];
-  };
+  } versiontag;
   uint16_t  numTables;
   uint16_t  searchRange;
   uint16_t  entrySelector;

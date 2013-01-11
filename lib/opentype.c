@@ -45,7 +45,7 @@ BUFFER *assemble_opentype_font( struct names *font_names ) {
    * Most values are set after creating all other tables
    */
   OTF_OFFSET_TABLE *offset_table = buffer_alloc( fontbuffer, sizeof( OTF_OFFSET_TABLE ) );
-  memcpy( &offset_table->tag, "OTTO", 4 );
+  memcpy( &offset_table->versiontag.tag, "OTTO", 4 );
 
   /* Table record entries
    * Sorted alphabetically (recommended order).
