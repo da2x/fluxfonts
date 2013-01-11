@@ -112,7 +112,7 @@ void *insert_full_table( BUFFER *complete_font, OTF_TABLE_RECORD *head_entry, BU
 	head_entry->offset = complete_font->position;
 	head_entry->length = insert_me->position;
 	insert_buffer( complete_font, insert_me );
-	free( insert_me );
+	free_buffer( insert_me );
 	return table;
 }
 
