@@ -188,13 +188,13 @@ build: $(SRCS)
 	$(CC) $(LDFLAGS) $(CFLAGS) $(OTHARCH) $(SRCS) -o $(PROGRAM) -lm
 
 install: build
-	$(INSTALL_PROGRAM) -d $(DESTDIR)$(BINDIR)
+	$(INSTALL_PROGRAM) --directory $(DESTDIR)$(BINDIR)
 	$(INSTALL_PROGRAM) $(INSTALLFLAGS) $(PROGRAM) $(DESTDIR)$(BINDIR)
 
 install-all: build install install-doc install-daemon
 
 install-doc:
-	$(INSTALL_PROGRAM) -d $(DESTDIR)$(DOCDIR)
+	$(INSTALL_PROGRAM) --directory $(DESTDIR)$(DOCDIR)
 	$(INSTALL_PROGRAM) $(INSTALLFLAGS) $(DOCS) $(DESTDIR)$(DOCDIR)
 
 install-daemon: $(CONFIG_LAUNCHD) $(CONFIG_UPSTART) $(CONFIG_SYSVINIT)
@@ -204,15 +204,15 @@ install-dist-osx: $(NAME)-$(VERSION).pkg
 
 uninstall: $(DECONFIG_LAUNCHD) $(DECONFIG_UPSTART) $(DECONFIG_SYSVINIT)
 	rm $(BINDIR)/$(PROGRAM)
-	rm -rf $(DOCDIR)
+	rm --recursive --force $(DOCDIR)
 
 configure-launchd:
 	-rm $(DISTPKGDIR)$(LAUNCHDCONF)
-	$(INSTALL_PROGRAM) -d $(DISTPKGDIR)$(LAUNCHDDIR)
+	$(INSTALL_PROGRAM) --directory $(DISTPKGDIR)$(LAUNCHDDIR)
 	$(LAUNCHDCONF-SRC)
 
 install-launchd: configure-launchd
-	$(INSTALL_PROGRAM) -d $(DESTDIR)$(LAUNCHDDIR)
+	$(INSTALL_PROGRAM) --directory $(DESTDIR)$(LAUNCHDDIR)
 	$(INSTALL_PROGRAM) $(DISTPKGDIR)$(LAUNCHDCONF) $(DESTDIR)$(LAUNCHDDIR)
 	$(LAUNCHDUTIL) load $(DESTDIR)$(LAUNCHDCONF)
 
@@ -222,11 +222,11 @@ deconfigure-launchd:
 
 configure-upstart:
 	-rm $(DISTPKGDIR)$(UPSTARTCONF)
-	$(INSTALL_PROGRAM) -d $(DISTPKGDIR)$(UPSTARTDIR)
+	$(INSTALL_PROGRAM) --directory $(DISTPKGDIR)$(UPSTARTDIR)
 	printf '$(subst $(newline),\n,${UPSTARTCONF-SRC})' > $(DISTPKGDIR)$(UPSTARTCONF)
 
 install-upstart: configure-upstart
-	$(INSTALL_PROGRAM) -d $(DESTDIR)$(UPSTARTDIR)
+	$(INSTALL_PROGRAM) --directory $(DESTDIR)$(UPSTARTDIR)
 	$(INSTALL_PROGRAM) $(DISTPKGDIR)$(UPSTARTCONF) $(DESTDIR)$(UPSTARTDIR)
 	-$(SERVICEUTIL) $(LNAME) start
 
@@ -236,11 +236,11 @@ deconfigure-upstart:
 
 configure-sysvinit:
 	-rm $(DISTPKGDIR)$(SYSVINITCONF)
-	$(INSTALL_PROGRAM) -d $(DISTPKGDIR)$(SYSVINITDIR)
+	$(INSTALL_PROGRAM) --directory $(DISTPKGDIR)$(SYSVINITDIR)
 	printf '$(subst $(newline),\n,${SYSVINITCONF-SRC})' > $(DISTPKGDIR)$(SYSVINITCONF)
 
 install-sysvinit: configure-sysvinit
-	$(INSTALL_PROGRAM) -d $(DESTDIR)$(SYSVINITDIR)
+	$(INSTALL_PROGRAM) --directory $(DESTDIR)$(SYSVINITDIR)
 	$(INSTALL_PROGRAM) $(DISTPKGDIR)$(SYSVINITCONF) $(DESTDIR)$(SYSVINITDIR)
 	-$(INITDEFUTIL) $(LNAME)
 	-$(SERVICEUTIL) $(LNAME) start
@@ -254,10 +254,10 @@ dist: $(PACKAGE_OSX)
 
 $(NAME)-$(VERSION).pkg: all configure-launchd
 	-rm $(NAME)-$(VERSION).pkg
-	$(INSTALL_PROGRAM) -d $(DISTPKGDIR)$(BINDIR)
-	$(INSTALL_PROGRAM) -d $(DISTPKGDIR)$(LAUNCHDDIR)
-	$(INSTALL_PROGRAM) -d $(DISTSCRIPTSDIR)
-	$(INSTALL_PROGRAM) -d $(DISTPKGDIR)$(DOCDIR)
+	$(INSTALL_PROGRAM) --directory $(DISTPKGDIR)$(BINDIR)
+	$(INSTALL_PROGRAM) --directory $(DISTPKGDIR)$(LAUNCHDDIR)
+	$(INSTALL_PROGRAM) --directory $(DISTSCRIPTSDIR)
+	$(INSTALL_PROGRAM) --directory $(DISTPKGDIR)$(DOCDIR)
 	$(INSTALL_PROGRAM) $(INSTALLFLAGS) $(PROGRAM) $(DISTPKGDIR)$(BINDIR)
 	$(INSTALL_PROGRAM) $(INSTALLFLAGS) $(DOCS) $(DISTPKGDIR)$(DOCDIR)
 	echo "#!$(SHELL)\n$(LAUNCHDUTIL) load $(LAUNCHDCONF)\nexit 0" > $(OSXPKGPOSTINSTALL)
@@ -266,16 +266,16 @@ $(NAME)-$(VERSION).pkg: all configure-launchd
 
 $(LNAME)-$(VERSION).tar.gz: maintainer-clean
 	mkdir $(TEMPDIR)/$(LNAME)-$(VERSION)
-	cp -r . $(TEMPDIR)/$(LNAME)-$(VERSION)
-	-rm -rf $(TEMPDIR)/$(LNAME)-$(VERSION)/.*
+	cp --recursive . $(TEMPDIR)/$(LNAME)-$(VERSION)
+	-rm --recursive --force $(TEMPDIR)/$(LNAME)-$(VERSION)/.*
 	mv $(TEMPDIR)/$(LNAME)-$(VERSION) ./
-	tar czvf $(LNAME)-$(VERSION).tar.gz $(LNAME)-$(VERSION)
+	tar --create --gzip --file $(LNAME)-$(VERSION).tar.gz $(LNAME)-$(VERSION)
 
 clean:
-	rm -rf $(PROGRAM).dSYM
+	rm --recursive --force $(PROGRAM).dSYM
 
 distclean:
-	rm -rf $(DISTROOTDIR) $(TEMPDIR)/$(NAME)-$(VERSION) $(LNAME)-$(VERSION)/ $(NAME)-$(VERSION).pkg $(LNAME)-$(VERSION).tar.gz
+	rm --recursive --force $(DISTROOTDIR) $(TEMPDIR)/$(NAME)-$(VERSION) $(LNAME)-$(VERSION)/ $(NAME)-$(VERSION).pkg $(LNAME)-$(VERSION).tar.gz
 
 maintainer-clean: clean distclean
-	rm -rf $(PROGRAM) *~ */*~ */*/*~
+	rm --recursive --force $(PROGRAM) *~ */*~ */*/*~
