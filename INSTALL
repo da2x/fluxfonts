@@ -3,7 +3,7 @@ Installation notes
 
 
 Checksums for releases can be obtained from the project’s
-web site at http://web.aeyoun.priv.no/p/fluxfonts/intro
+web site at https://www.aeyoun.priv.no/p/fluxfonts/intro.html
 
 To install to the default locations, run `make install-all`.
 You can also set a custom directory prefix by running e.g.
