@@ -52,6 +52,8 @@ LAUNCHDDIR = /Library/LaunchDaemons
 LAUNCHDCONF = $(LAUNCHDDIR)/$(LNAME).plist
 UPSTARTDIR = /etc/init
 UPSTARTCONF = $(UPSTARTDIR)/$(LNAME).conf
+SYSTEMDDIR = /usr/lib/systemd/system
+SYSTEMDCONF = $(SYSTEMDDIR)/$(LNAME).system
 SYSVINITDIR = /etc/init.d
 SYSVINITCONF = $(SYSVINITDIR)/$(LNAME)
 DISTROOTDIR = $(TEMPDIR)/$(LNAME).dist
@@ -83,7 +85,7 @@ OSXPKGBUILD = /usr/bin/pkgbuild
 CC ?= clang
 CFLAGS += -Wall -std=c99 -g
 
-# launchd, upstart, or sysvinit based on available directories
+# launchd, upstart, systemd, or sysvinit based on available directories
 ifneq ($(wildcard $(SYSVINITDIR)),)
 CONFIG_SYSVINIT = install-sysvinit
 DECONFIG_SYSVINIT = deconfigure-sysvinit
@@ -92,6 +94,13 @@ endif
 ifneq ($(wildcard $(UPSTARTDIR)),)
 CONFIG_UPSTART = install-upstart
 DECONFIG_UPSTART = deconfigure-upstart
+CONFIG_SYSVINIT =
+DECONFIG_SYSVINIT =
+endif
+
+ifneq ($(wildcard $(SYSTEMDDIR)),)
+CONFIG_SYSTEMD = install-systemd
+DECONFIG_SYSTEMD = deconfigure-systemd
 CONFIG_SYSVINIT =
 DECONFIG_SYSVINIT =
 endif
@@ -132,9 +141,23 @@ exec $(BINDIR)/$(PROGRAM)
 
 endef
 
+define SYSTEMDCONF-SRC
+[Unit]
+Description=$(SHORTDESC)
+
+[Service]
+Type=forking
+ExecStart=$(BINDIR)/$(PROGRAM)
+
+[Install]
+WantedBy=multi-user.target
+
+endef
+
 # Due to layers of different substitution interpretors it is necessary to use "$$$ "
 # for a single literal "$". "$$" is used inside a comment for the same result.
 # Several code monkeys where hurt while researching this.
+
 define SYSVINITCONF-SRC
 #!/bin/sh
 ### BEGIN INIT INFO
@@ -197,12 +220,12 @@ install-doc:
 	$(INSTALL_PROGRAM) --directory $(DESTDIR)$(DOCDIR)
 	$(INSTALL_PROGRAM) $(INSTALLFLAGS) $(DOCS) $(DESTDIR)$(DOCDIR)
 
-install-daemon: $(CONFIG_LAUNCHD) $(CONFIG_UPSTART) $(CONFIG_SYSVINIT)
+install-daemon: $(CONFIG_LAUNCHD) $(CONFIG_UPSTART) $(CONFIG_SYSTEMD) $(CONFIG_SYSVINIT)
 
 install-dist-osx: $(NAME)-$(VERSION).pkg
 	/usr/sbin/installer --pkg $(NAME)-$(VERSION).pkg --PROGRAM /
 
-uninstall: $(DECONFIG_LAUNCHD) $(DECONFIG_UPSTART) $(DECONFIG_SYSVINIT)
+uninstall: $(DECONFIG_LAUNCHD) $(DECONFIG_UPSTART) $(DECONFIG_SYSTEMD) $(DECONFIG_SYSVINIT)
 	rm $(BINDIR)/$(PROGRAM)
 	rm --recursive --force $(DOCDIR)
 
@@ -233,6 +256,18 @@ install-upstart: configure-upstart
 deconfigure-upstart:
 	-$(SERVICEUTIL) $(LNAME) stop
 	-rm $(UPSTARTCONF)
+
+configure-systemd:
+	-rm $(DISTPKGDIR)$(SYSTEMDCONF)
+	$(INSTALL_PROGRAM) --directory $(DISTPKGDIR)$(SYSTEMDDIR)
+	printf '$(subst $(newline),\n,${SYSTEMDCONF-SRC})' > $(DISTPKGDIR)$(SYSTEMDCONF)
+
+install-systemd: configure-systemd
+	$(INSTALL_PROGRAM) --directory $(DESTDIR)$(SYSTEMDDIR)
+	$(INSTALL_PROGRAM) $(DISTPKGDIR)$(SYSTEMDCONF) $(DESTDIR)$(SYSTEMDDIR)
+
+deconfigure-systemd:
+	-rm $(SYSTEMDCONF)
 
 configure-sysvinit:
 	-rm $(DISTPKGDIR)$(SYSVINITCONF)
