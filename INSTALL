@@ -12,10 +12,10 @@ and documentation. `install`, however, does not.
 
 The program should be run as a system daemon with root permissions
 Daemons to run the program are configured automatically provided
-they can be detected. OS X (launchd), Ubuntu (upstart), and System
-V init (Debian) are supported. Running `make install-launchd`,
-`make install-upstart`, or `make install-sysvinit` can be used to
-reconfigure this again.
+they can be detected. OS X (launchd), Ubuntu (upstart), systemd, and
+System V init (Debian) are supported. Running `make install-launchd`,
+`make install-upstart`, `make install-systemd`, or
+`make install-sysvinit` can be used to reconfigure this again.
 
 Other daemon managers such as initng, and cron must be configured
 manually.
