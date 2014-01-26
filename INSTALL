@@ -1,4 +1,3 @@
-
 Installation notes
 
 
@@ -19,3 +18,11 @@ System V init (Debian) are supported. Running `make install-launchd`,
 
 Other daemon managers such as initng, and cron must be configured
 manually.
+
+
+The program does not need to run as the root user. Create the required
+directories (run it once as root to create the approperiate for your
+distribution). The program will run without problems as a daemon user
+with write permissions to these directories. This should be done by
+package maintainers to avoid any potential security issues related to
+running the program under the root user.
