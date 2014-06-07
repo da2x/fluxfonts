@@ -169,7 +169,6 @@ define SYSVINITCONF-SRC
 # Short-Description: $(SHORTDESC)
 # Description: $(LONGDDESC)
 ### END INIT INFO
-# Author: Daniel Aleksandersen
 
 # Start the service $(NAME)
 start() {
@@ -279,9 +278,11 @@ install-sysvinit: configure-sysvinit
 	$(INSTALL_PROGRAM) $(DISTPKGDIR)$(SYSVINITCONF) $(DESTDIR)$(SYSVINITDIR)
 	-$(INITDEFUTIL) $(LNAME)
 	-$(SERVICEUTIL) $(LNAME) start
+	-update-rc.d $(LNAME) enable
 
 deconfigure-sysvinit:
 	-$(SERVICEUTIL) $(LNAME) stop
+	-update-rc.d $(LNAME) disable
 	-$(SYSVINITDIR) --remove $(LNAME)
 	-rm $(SYSVINITCONF)
 
