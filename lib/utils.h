@@ -34,6 +34,7 @@
 
 
 #include <errno.h>
+#include <glob.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -49,6 +50,8 @@
 void util_single_process_lock( void );
 void util_daemonize_self( void );
 void util_init_rand( void );
+
+int util_power_supply_online( void );
 int util_maxpow2( int val );
 char* util_get_datadir( void );
 char* util_get_fontdir( void );

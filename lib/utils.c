@@ -206,6 +206,49 @@ void util_uninstall_all_fonts( char* fontsetlist, char* fontdir ) {
 }
 
 
+int util_power_supply_online( void ) {
+
+  char* powersupplydir = "/sys/class/power_supply/";
+
+  if ( access( powersupplydir, R_OK | X_OK ) == 0 ) {
+    char* globpattern = "/sys/class/power_supply/*/online";
+    glob_t powersupplies;
+    int supplyglob = 1;
+    int i = 0;
+
+    int flags = 0;
+    flags |= (i > 1 ? GLOB_APPEND : 0);
+
+    supplyglob = glob( globpattern, flags, NULL, & powersupplies );
+
+    if ( supplyglob == 0 ) {
+      for ( i = 0; i < powersupplies.gl_pathc; i++ ) {
+        int onlinefile = open( powersupplies.gl_pathv[i],  O_RDONLY );
+        char powerstatus[1];
+
+        read( onlinefile, powerstatus, 1 );
+        close( onlinefile );
+
+        if ( strstr( powerstatus, "1" ) != NULL ) {
+          globfree(& powersupplies );
+          return 1;
+        }
+      }
+
+      /* Sources were found but none were online. */
+      if ( powersupplies.gl_pathc >= 1 ) {
+        globfree(& powersupplies );
+        return 0;
+      }
+    }
+    globfree(& powersupplies );
+  }
+
+  /* Not POSIX or no info. Assume there is a power source online. */
+  return 1;
+}
+
+
 int util_maxpow2( int val ) {
 
   if ( val == 1 ) return 0;
