@@ -37,33 +37,42 @@
 
 
 void util_single_process_lock( void ) {
+  char* pidfilepath = ( char* ) malloc( ( strlen( "/var/run/" ) + strlen( PROGRAM_NAME ) + strlen( ".pid" ) + 1 ) );
+  *pidfilepath = '\0';
 
-  char* lockfile = ( char* ) malloc( ( strlen( "/run/lock/" ) + strlen( PROGRAM_NAME ) + 1 ) );
-  *lockfile = '\0';
-
-  if ( access( "/run/lock/", R_OK | W_OK | X_OK ) == 0 )
-    strcat( lockfile, "/run/lock/" );
-  else if ( access( "/var/lock/", R_OK | W_OK | X_OK ) == 0 )
-    strcat( lockfile, "/var/lock/" );
+  if ( access( "/run/", R_OK | W_OK | X_OK ) == 0 )
+    strcat( pidfilepath, "/run/" );
+  else if ( access( "/var/run/", R_OK | W_OK | X_OK ) == 0 )
+    strcat( pidfilepath, "/var/run/" );
   else {
-    syslog( LOG_CRIT, "Neither the `/run/lock/` nor `/var/lock/` directories are read-writeable!" );
+    syslog( LOG_CRIT, "Neither the '/run/' nor '/var/run/' directories are read-writable! Exiting." );
     exit( EACCES );
   }
 
-  strcat( lockfile, PROGRAM_NAME );
+  strcat( pidfilepath, PROGRAM_NAME );
+  strcat( pidfilepath, ".pid" );
 
-  int lfd = -1;
-  lfd = open( lockfile, O_RDONLY | O_CREAT | O_NONBLOCK, 0640 );
-  if ( lfd < 0 ) {
-    syslog( LOG_ERR, "Cannot open lock file %s (%s)", lockfile, strerror( errno ) );
-    exit( errno );
+  int pidfilehandle = -1;
+  pidfilehandle = open( pidfilepath, O_RDWR | O_CREAT, 0640 );
+
+  if ( pidfilehandle < 0 ) {
+    syslog( LOG_ERR, "Could not open '%s'. Exiting.", pidfilepath );
+    exit( EACCES );
   }
-  if ( flock( lfd, LOCK_EX | LOCK_NB ) != 0 ) {
-    syslog( LOG_ERR, "Cannot get lock on file %s (%s)", lockfile, strerror( errno ) );
-    exit( errno );
+  if (flock( pidfilehandle, LOCK_EX | LOCK_NB ) != 0 ) {
+    char pidtext[32];
+    bzero( pidtext, 32 );
+    read( pidfilehandle, pidtext, 32 );
+    syslog( LOG_ERR, "Could not lock '%s'. It could be locked by another process (%ld). Exiting.", pidfilepath, strtol( pidtext, 0, 10 ) );
+    exit( EACCES );
   }
 
-  free ( lockfile ); /* path only */
+  char pid[32];
+  bzero( pid, 32 );
+  sprintf( pid, "%d\n", getpid() );
+  write( pidfilehandle, pid, strlen( pid ) );
+
+  free ( pidfilepath );
 }
 
 
@@ -71,7 +80,7 @@ void util_daemonize_self( void ) {
 
   pid_t pid, sid;
 
-  /* already running as a daemon process */
+  /* there is a parent process; therefor I am a child process */
   if ( getppid() == 1 )
     return;
 
