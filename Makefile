@@ -54,8 +54,6 @@ UPSTARTDIR = /etc/init
 UPSTARTCONF = $(UPSTARTDIR)/$(LNAME).conf
 SYSTEMDDIR = /usr/lib/systemd/system
 SYSTEMDCONF = $(SYSTEMDDIR)/$(LNAME).system
-SYSVINITDIR = /etc/init.d
-SYSVINITCONF = $(SYSVINITDIR)/$(LNAME)
 DISTROOTDIR = $(TEMPDIR)/$(LNAME).dist
 DISTPKGDIR = $(DISTROOTDIR)/dest_root
 DISTSCRIPTSDIR = $(DISTROOTDIR)/scripts
@@ -85,31 +83,20 @@ OSXPKGBUILD = /usr/bin/pkgbuild
 CC ?= clang
 CFLAGS += -Wall -std=c99 -g
 
-# launchd, upstart, systemd, or sysvinit based on available directories
-ifneq ($(wildcard $(SYSVINITDIR)),)
-CONFIG_SYSVINIT = install-sysvinit
-DECONFIG_SYSVINIT = deconfigure-sysvinit
-endif
-
+# launchd, upstart, or systemd based on available directories
 ifneq ($(wildcard $(UPSTARTDIR)),)
 CONFIG_UPSTART = install-upstart
 DECONFIG_UPSTART = deconfigure-upstart
-CONFIG_SYSVINIT =
-DECONFIG_SYSVINIT =
 endif
 
 ifneq ($(wildcard $(SYSTEMDDIR)),)
 CONFIG_SYSTEMD = install-systemd
 DECONFIG_SYSTEMD = deconfigure-systemd
-CONFIG_SYSVINIT =
-DECONFIG_SYSVINIT =
 endif
 
 ifneq ($(wildcard $(LAUNCHDDIR)),)
 CONFIG_LAUNCHD = install-launchd
 DECONFIG_LAUNCHD = deconfigure-launchd
-CONFIG_SYSVINIT =
-DECONFIG_SYSVINIT =
 endif
 
 
@@ -154,56 +141,6 @@ WantedBy=multi-user.target
 
 endef
 
-# Due to layers of different substitution interpretors it is necessary to use "$$$ "
-# for a single literal "$". "$$" is used inside a comment for the same result.
-# Several code monkeys where hurt while researching this.
-
-define SYSVINITCONF-SRC
-#!/bin/sh
-### BEGIN INIT INFO
-# Provides: $(LNAME)
-# Required-Start: $$local_fs $$remote_fs $$syslog
-# Required-Stop: $$local_fs
-# Default-Start: 2 3 4 5
-# Default-Stop: 0 1 6
-# Short-Description: $(SHORTDESC)
-# Description: $(LONGDDESC)
-### END INIT INFO
-
-# Start the service $(NAME)
-start() {
-  echo "Starting $(LNAME) daemon."
-  $(BINDIR)/$(PROGRAM) &
-}
-# Restart the service $(NAME)
-stop() {
-  echo "Stopping $(LNAME) daemon."
-  pkill $(PROGRAM)
-}
-### main ###
-case "$$$ 1" in
-  start)
-    start
-    ;;
-  stop)
-    stop
-    ;;
-  status)
-    status $(PROGRAM)
-    ;;
-  restart|reload|condrestart)
-    stop
-    start
-    ;;
-  *)
-    echo $$$ "Usage: $$$ 0 {start|stop|restart|reload|status}"
-    exit 1
-    ;;
-esac
-exit 0
-
-endef
-
 all: build
 
 build: $(SRCS)
@@ -219,12 +156,12 @@ install-doc:
 	$(INSTALL_PROGRAM) --directory $(DESTDIR)$(DOCDIR)
 	$(INSTALL_PROGRAM) $(INSTALLFLAGS) $(DOCS) $(DESTDIR)$(DOCDIR)
 
-install-daemon: $(CONFIG_LAUNCHD) $(CONFIG_UPSTART) $(CONFIG_SYSTEMD) $(CONFIG_SYSVINIT)
+install-daemon: $(CONFIG_LAUNCHD) $(CONFIG_UPSTART) $(CONFIG_SYSTEMD)
 
 install-dist-osx: $(NAME)-$(VERSION).pkg
 	/usr/sbin/installer --pkg $(NAME)-$(VERSION).pkg --PROGRAM /
 
-uninstall: $(DECONFIG_LAUNCHD) $(DECONFIG_UPSTART) $(DECONFIG_SYSTEMD) $(DECONFIG_SYSVINIT)
+uninstall: $(DECONFIG_LAUNCHD) $(DECONFIG_UPSTART) $(DECONFIG_SYSTEMD)
 	rm $(BINDIR)/$(PROGRAM)
 	rm --recursive --force $(DOCDIR)
 
@@ -267,24 +204,6 @@ install-systemd: configure-systemd
 
 deconfigure-systemd:
 	-rm $(SYSTEMDCONF)
-
-configure-sysvinit:
-	-rm $(DISTPKGDIR)$(SYSVINITCONF)
-	$(INSTALL_PROGRAM) --directory $(DISTPKGDIR)$(SYSVINITDIR)
-	printf '$(subst $(newline),\n,${SYSVINITCONF-SRC})' > $(DISTPKGDIR)$(SYSVINITCONF)
-
-install-sysvinit: configure-sysvinit
-	$(INSTALL_PROGRAM) --directory $(DESTDIR)$(SYSVINITDIR)
-	$(INSTALL_PROGRAM) $(DISTPKGDIR)$(SYSVINITCONF) $(DESTDIR)$(SYSVINITDIR)
-	-$(INITDEFUTIL) $(LNAME)
-	-$(SERVICEUTIL) $(LNAME) start
-	-update-rc.d $(LNAME) enable
-
-deconfigure-sysvinit:
-	-$(SERVICEUTIL) $(LNAME) stop
-	-update-rc.d $(LNAME) disable
-	-$(SYSVINITDIR) --remove $(LNAME)
-	-rm $(SYSVINITCONF)
 
 dist: $(PACKAGE_OSX)
 
