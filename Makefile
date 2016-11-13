@@ -125,13 +125,13 @@ build: $(SRCS)
 	$(CC) $(LDFLAGS) $(CFLAGS) $(OTHARCH) $(SRCS) -o $(PROGRAM) -lm
 
 install: build
-	$(INSTALL_PROGRAM) --directory $(DESTDIR)$(BINDIR)
+	$(INSTALL_PROGRAM) -d $(DESTDIR)$(BINDIR)
 	$(INSTALL_PROGRAM) $(INSTALLFLAGS) $(PROGRAM) $(DESTDIR)$(BINDIR)
 
 install-all: build install install-doc install-daemon
 
 install-doc:
-	$(INSTALL_PROGRAM) --directory $(DESTDIR)$(DOCDIR)
+	$(INSTALL_PROGRAM) -d $(DESTDIR)$(DOCDIR)
 	$(INSTALL_PROGRAM) $(INSTALLFLAGS) $(DOCS) $(DESTDIR)$(DOCDIR)
 
 install-daemon: $(CONFIG_LAUNCHD) $(CONFIG_SYSTEMD)
@@ -141,15 +141,15 @@ install-dist-osx: $(NAME)-$(VERSION).pkg
 
 uninstall: $(DECONFIG_LAUNCHD) $(DECONFIG_SYSTEMD)
 	rm $(BINDIR)/$(PROGRAM)
-	rm --recursive --force $(DOCDIR)
+	rm -rf $(DOCDIR)
 
 configure-launchd:
 	-rm $(DISTPKGDIR)$(LAUNCHDCONF)
-	$(INSTALL_PROGRAM) --directory $(DISTPKGDIR)$(LAUNCHDDIR)
+	$(INSTALL_PROGRAM) -d $(DISTPKGDIR)$(LAUNCHDDIR)
 	$(LAUNCHDCONF-SRC)
 
 install-launchd: configure-launchd
-	$(INSTALL_PROGRAM) --directory $(DESTDIR)$(LAUNCHDDIR)
+	$(INSTALL_PROGRAM) -d $(DESTDIR)$(LAUNCHDDIR)
 	$(INSTALL_PROGRAM) $(DISTPKGDIR)$(LAUNCHDCONF) $(DESTDIR)$(LAUNCHDDIR)
 	$(LAUNCHDUTIL) load $(DESTDIR)$(LAUNCHDCONF)
 
@@ -159,11 +159,11 @@ deconfigure-launchd:
 
 configure-systemd:
 	-rm $(DISTPKGDIR)$(SYSTEMDCONF)
-	$(INSTALL_PROGRAM) --directory $(DISTPKGDIR)$(SYSTEMDDIR)
+	$(INSTALL_PROGRAM) -d $(DISTPKGDIR)$(SYSTEMDDIR)
 	printf '$(subst $(newline),\n,${SYSTEMDCONF-SRC})' > $(DISTPKGDIR)$(SYSTEMDCONF)
 
 install-systemd: configure-systemd
-	$(INSTALL_PROGRAM) --directory $(DESTDIR)$(SYSTEMDDIR)
+	$(INSTALL_PROGRAM) -d $(DESTDIR)$(SYSTEMDDIR)
 	$(INSTALL_PROGRAM) $(DISTPKGDIR)$(SYSTEMDCONF) $(DESTDIR)$(SYSTEMDDIR)
 
 deconfigure-systemd:
@@ -173,10 +173,10 @@ dist: $(PACKAGE_OSX)
 
 $(NAME)-$(VERSION).pkg: all configure-launchd
 	-rm $(NAME)-$(VERSION).pkg
-	$(INSTALL_PROGRAM) --directory $(DISTPKGDIR)$(BINDIR)
-	$(INSTALL_PROGRAM) --directory $(DISTPKGDIR)$(LAUNCHDDIR)
-	$(INSTALL_PROGRAM) --directory $(DISTSCRIPTSDIR)
-	$(INSTALL_PROGRAM) --directory $(DISTPKGDIR)$(DOCDIR)
+	$(INSTALL_PROGRAM) -d $(DISTPKGDIR)$(BINDIR)
+	$(INSTALL_PROGRAM) -d $(DISTPKGDIR)$(LAUNCHDDIR)
+	$(INSTALL_PROGRAM) -d $(DISTSCRIPTSDIR)
+	$(INSTALL_PROGRAM) -d $(DISTPKGDIR)$(DOCDIR)
 	$(INSTALL_PROGRAM) $(INSTALLFLAGS) $(PROGRAM) $(DISTPKGDIR)$(BINDIR)
 	$(INSTALL_PROGRAM) $(INSTALLFLAGS) $(DOCS) $(DISTPKGDIR)$(DOCDIR)
 	echo "#!$(SHELL)\n$(LAUNCHDUTIL) load $(LAUNCHDCONF)\nexit 0" > $(OSXPKGPOSTINSTALL)
@@ -185,16 +185,16 @@ $(NAME)-$(VERSION).pkg: all configure-launchd
 
 $(LNAME)-$(VERSION).tar.gz: maintainer-clean
 	mkdir $(TEMPDIR)/$(LNAME)-$(VERSION)
-	cp --recursive . $(TEMPDIR)/$(LNAME)-$(VERSION)
-	-rm --recursive --force $(TEMPDIR)/$(LNAME)-$(VERSION)/.*
+	cp -r . $(TEMPDIR)/$(LNAME)-$(VERSION)
+	-rm -rf $(TEMPDIR)/$(LNAME)-$(VERSION)/.*
 	mv $(TEMPDIR)/$(LNAME)-$(VERSION) ./
-	tar --create --gzip --file $(LNAME)-$(VERSION).tar.gz $(LNAME)-$(VERSION)
+	tar -c -z -f $(LNAME)-$(VERSION).tar.gz $(LNAME)-$(VERSION)
 
 clean:
-	rm --recursive --force $(PROGRAM).dSYM
+	-rm -rf $(PROGRAM).dSYM
 
 distclean:
-	rm --recursive --force $(DISTROOTDIR) $(TEMPDIR)/$(NAME)-$(VERSION) $(LNAME)-$(VERSION)/ $(NAME)-$(VERSION).pkg $(LNAME)-$(VERSION).tar.gz
+	-rm -rf $(DISTROOTDIR) $(TEMPDIR)/$(NAME)-$(VERSION) $(LNAME)-$(VERSION)/ $(NAME)-$(VERSION).pkg $(LNAME)-$(VERSION).tar.gz
 
 maintainer-clean: clean distclean
-	rm --recursive --force $(PROGRAM) *~ */*~ */*/*~
+	-rm -rf $(PROGRAM) *~ */*~ */*/*~
