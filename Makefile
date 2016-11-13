@@ -50,8 +50,6 @@ DOCDIR = $(PREFIX)/share/doc/$(LNAME)
 TEMPDIR = /var/tmp
 LAUNCHDDIR = /Library/LaunchDaemons
 LAUNCHDCONF = $(LAUNCHDDIR)/$(LNAME).plist
-UPSTARTDIR = /etc/init
-UPSTARTCONF = $(UPSTARTDIR)/$(LNAME).conf
 SYSTEMDDIR = /usr/lib/systemd/system
 SYSTEMDCONF = $(SYSTEMDDIR)/$(LNAME).system
 DISTROOTDIR = $(TEMPDIR)/$(LNAME).dist
@@ -83,12 +81,7 @@ OSXPKGBUILD = /usr/bin/pkgbuild
 CC ?= clang
 CFLAGS += -Wall -std=c99 -g
 
-# launchd, upstart, or systemd based on available directories
-ifneq ($(wildcard $(UPSTARTDIR)),)
-CONFIG_UPSTART = install-upstart
-DECONFIG_UPSTART = deconfigure-upstart
-endif
-
+# launchd or systemd based on available directories
 ifneq ($(wildcard $(SYSTEMDDIR)),)
 CONFIG_SYSTEMD = install-systemd
 DECONFIG_SYSTEMD = deconfigure-systemd
@@ -110,21 +103,6 @@ define LAUNCHDCONF-SRC
 $(DEFAULTSUTIL) write $(DISTPKGDIR)$(LAUNCHDCONF) RunAtLoad -boolean TRUE
 $(DEFAULTSUTIL) write $(DISTPKGDIR)$(LAUNCHDCONF) Label -string $(REVERSE_DOMAIN)
 $(DEFAULTSUTIL) write $(DISTPKGDIR)$(LAUNCHDCONF) ProgramArguments -array-add $(BINDIR)/$(PROGRAM)
-
-endef
-
-define UPSTARTCONF-SRC
-description "$(SHORTDESC)"
-author "$(AUTHOR)"
-
-start on filesystem
-stop on runlevel S
-
-respawn
-respawn limit 10 10
-
-expect fork
-exec $(BINDIR)/$(PROGRAM)
 
 endef
 
@@ -156,12 +134,12 @@ install-doc:
 	$(INSTALL_PROGRAM) --directory $(DESTDIR)$(DOCDIR)
 	$(INSTALL_PROGRAM) $(INSTALLFLAGS) $(DOCS) $(DESTDIR)$(DOCDIR)
 
-install-daemon: $(CONFIG_LAUNCHD) $(CONFIG_UPSTART) $(CONFIG_SYSTEMD)
+install-daemon: $(CONFIG_LAUNCHD) $(CONFIG_SYSTEMD)
 
 install-dist-osx: $(NAME)-$(VERSION).pkg
 	/usr/sbin/installer --pkg $(NAME)-$(VERSION).pkg --PROGRAM /
 
-uninstall: $(DECONFIG_LAUNCHD) $(DECONFIG_UPSTART) $(DECONFIG_SYSTEMD)
+uninstall: $(DECONFIG_LAUNCHD) $(DECONFIG_SYSTEMD)
 	rm $(BINDIR)/$(PROGRAM)
 	rm --recursive --force $(DOCDIR)
 
@@ -178,20 +156,6 @@ install-launchd: configure-launchd
 deconfigure-launchd:
 	-$(LAUNCHDUTIL) unload $(LAUNCHDCONF)
 	-rm $(LAUNCHDCONF)
-
-configure-upstart:
-	-rm $(DISTPKGDIR)$(UPSTARTCONF)
-	$(INSTALL_PROGRAM) --directory $(DISTPKGDIR)$(UPSTARTDIR)
-	printf '$(subst $(newline),\n,${UPSTARTCONF-SRC})' > $(DISTPKGDIR)$(UPSTARTCONF)
-
-install-upstart: configure-upstart
-	$(INSTALL_PROGRAM) --directory $(DESTDIR)$(UPSTARTDIR)
-	$(INSTALL_PROGRAM) $(DISTPKGDIR)$(UPSTARTCONF) $(DESTDIR)$(UPSTARTDIR)
-	-$(SERVICEUTIL) $(LNAME) start
-
-deconfigure-upstart:
-	-$(SERVICEUTIL) $(LNAME) stop
-	-rm $(UPSTARTCONF)
 
 configure-systemd:
 	-rm $(DISTPKGDIR)$(SYSTEMDCONF)
