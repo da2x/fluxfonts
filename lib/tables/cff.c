@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2013, Daniel Aleksandersen
+  Copyright 2012–2016, Daniel Aleksandersen
   Copyright 2012, Daniel Nebdal
   All rights reserved.
 
