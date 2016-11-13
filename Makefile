@@ -51,13 +51,17 @@ TEMPDIR = /var/tmp
 LAUNCHDDIR = /Library/LaunchDaemons
 LAUNCHDCONF = $(LAUNCHDDIR)/$(LNAME).plist
 SYSTEMDDIR = /usr/lib/systemd/system
-SYSTEMDCONF = $(SYSTEMDDIR)/$(LNAME).system
+SYSTEMDCONF = $(SYSTEMDDIR)/$(LNAME).service
 DISTROOTDIR = $(TEMPDIR)/$(LNAME).dist
 DISTPKGDIR = $(DISTROOTDIR)/dest_root
 DISTSCRIPTSDIR = $(DISTROOTDIR)/scripts
 OSXPKGPOSTINSTALL = $(DISTSCRIPTSDIR)/postinstall
 
-# OS differences from GNU/Linuses
+# OS differences
+ifeq ($(shell sh -c 'uname -s'),Linux)
+LDFLAGS += -lsystemd
+CFLAGS += -DSYSTEMD
+endif
 ifeq ($(shell sh -c 'uname -s'),FreeBSD)
 INSTALLFLAGS = -S
 LDFLAGS += -liconv -L/usr/local/lib
@@ -79,7 +83,7 @@ SERVICEUTIL = /usr/sbin/service
 INITDEFUTIL = /sbin/insserv
 OSXPKGBUILD = /usr/bin/pkgbuild
 CC ?= clang
-CFLAGS += -Wall -std=c99 -g
+CFLAGS += -Wall -std=c99
 
 # launchd or systemd based on available directories
 ifneq ($(wildcard $(SYSTEMDDIR)),)
@@ -111,8 +115,10 @@ define SYSTEMDCONF-SRC
 Description=$(SHORTDESC)
 
 [Service]
-Type=forking
+Type=notify
 ExecStart=$(BINDIR)/$(PROGRAM)
+PIDFile=/run/$(NAME).pid
+Nice=15
 
 [Install]
 WantedBy=multi-user.target

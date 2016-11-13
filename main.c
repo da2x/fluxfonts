@@ -58,6 +58,11 @@ int main() {
 
   util_init_rand();
 
+/* Let systemd know the service is ready. */
+#if ( defined SYSTEMD )
+  sd_notify( 0, "READY=1" );
+#endif
+
   /* Main loop that continuously makes and replaces new fonts. */
   for ( ;; ) {
 
@@ -84,17 +89,10 @@ int main() {
     /* When a power source is online, sleep for between 2 and 20 minutes
        When on battery power, sleep for between 15 and 40 minutes before the next run. */
     int sleep_cycle = 120;
-    if ( util_power_supply_online( ) ) {
+    if ( util_power_supply_online( ) )
       sleep_cycle = 120 + ( rand() % 1080 );
-
-      /* Force-rebuild the system's font cache */
-      util_rebuild_fontcache( fontdir );
-    }
-    else {
+    else
       sleep_cycle = 900 + ( rand() % 1500 );
-
-      /* Not forcie-rebuilding the font cache while on battery power. */
-    }
 
     sleep( sleep_cycle );
   }

@@ -57,4 +57,3 @@ int util_maxpow2( int val );
 char* util_get_datadir( void );
 char* util_get_fontdir( void );
 void util_uninstall_all_fonts( char* fontsetlist, char* fontdir );
-int util_rebuild_fontcache( char* dirpath );

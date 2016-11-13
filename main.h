@@ -40,6 +40,9 @@
 
 #include "lib/opentype.h"
 
+#if ( defined SYSTEMD )
+#include <systemd/sd-daemon.h>
+#endif
 
 BUFFER *dict_file = NULL;
 POSITIONS *dict_lines = NULL;

@@ -268,15 +268,3 @@ int util_maxpow2( int val ) {
   return result >> 1;
 }
 
-
-int util_rebuild_fontcache( char* dirpath ) {
-
-#if ( ( defined __unix__ ) || ( defined __linux__ ) ) && !( defined __APPLE__ )
-  /* Best (meaning very little) effort font cache rebuilding on Linux/FreeBSD. */
-  if ( fork() == 0 ) {
-    execlp( "fc-cache", dirpath );
-    return errno;
-  }
-#endif
-  return 0;
-}
