@@ -130,13 +130,11 @@ all: build
 build: $(SRCS)
 	$(CC) $(LDFLAGS) $(CFLAGS) $(OTHARCH) $(SRCS) -o $(PROGRAM) -lm
 
-install: build
+install: build install-docs
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(BINDIR)
 	$(INSTALL_PROGRAM) $(INSTALLFLAGS) $(PROGRAM) $(DESTDIR)$(BINDIR)
 
-install-all: build install install-doc install-daemon
-
-install-doc:
+install-docs:
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(DOCDIR)
 	$(INSTALL_PROGRAM) $(INSTALLFLAGS) $(DOCS) $(DESTDIR)$(DOCDIR)
 
@@ -204,3 +202,4 @@ distclean:
 
 maintainer-clean: clean distclean
 	-rm -rf $(PROGRAM) *~ */*~ */*/*~
+

@@ -1,22 +1,30 @@
-Installation notes
+Dependencies
 
-To install to the default locations, run `make install-all`.
-You can also set a custom directory prefix by running e.g.
-`make prefix=/opt install-all`. `install-all` include system daemons
-and documentation. `install`, however, does not.
+Fedora:
+* systemd-devel
 
-The program should be run as a system daemon with root permissions
-Daemons to run the program are configured automatically provided
-they can be detected. OS X (launchd) or Linux (systemd) are supported.
-Running `make install-launchd` or `make install-systemd`.
-
-Other daemon managers such as initng, and cron must be configured
-manually.
+Debian/Ubuntu:
+* systemd-dev
 
 
-The program does not need to run as the root user. Create the required
-directories (run it once as root to create the approperiate for your
-distribution). The program will run without problems as a daemon user
-with write permissions to these directories. This should be done by
-package maintainers to avoid any potential security issues related to
-running the program under the root user.
+Building
+
+1. make
+
+
+Installing
+
+1. make install [install-daemon] [--prefix=/usr/local]
+
+Linux installs a systemd service file for running the daemon with
+`install-daemon` and macOS installs a launchd service file. FreeBSD
+will need to configure a service or cron to run the daemon on boot.
+Windows is unsupported.
+
+
+Notes for package  distributors
+
+The program service does not need to run as the root user. Create the
+required directories as part of the installation package, and the
+fluxfontd daemon should only require read permissions for those
+directories. This is the preferred way to run fluxfontd.
