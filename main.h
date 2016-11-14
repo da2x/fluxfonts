@@ -40,7 +40,7 @@
 
 #include "lib/opentype.h"
 
-#if ( defined SYSTEMD )
+#ifdef SYSTEMD
 #include <systemd/sd-daemon.h>
 #endif
 
