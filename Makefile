@@ -40,7 +40,22 @@ LONGDDESC = The $(PROGRAM) daemon for $(SHORTDESC)
 VERSION = 1.2
 AUTHOR = Daniel Aleksandersen
 
-SRCS = main.c $(wildcard lib/*.c) $(wildcard lib/tables/*.c)
+OBJS = lib/buffer.o\
+       lib/familyname.o\
+       lib/opentype.o\
+       lib/utils.o\
+       lib/tables/cff.o\
+       lib/tables/cmap.o\
+       lib/tables/head.o\
+       lib/tables/hhea.o\
+       lib/tables/hmtx.o\
+       lib/tables/maxp.o\
+       lib/tables/name.o\
+       lib/tables/os2.o\
+       lib/tables/post.o\
+       lib/tables/tables.o\
+       main.o
+
 DOCS = AUTHORS COPYING README
 
 # directories
@@ -127,10 +142,58 @@ WantedBy=multi-user.target
 
 endef
 
+
 all: build
 
-build: $(SRCS)
-	$(CC) $(CFLAGS) $(OTHARCH) $(SRCS) -o $(PROGRAM) $(LDFLAGS)
+build: $(PROGRAM)
+
+lib/buffer.o: lib/buffer.c
+	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/buffer.c
+
+lib/familyname.o: lib/familyname.c lib/buffer.h lib/define.h lib/utils.h
+	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/familyname.c
+
+lib/opentype.o: lib/opentype.c lib/buffer.h lib/define.h lib/familyname.h lib/tables/*.h
+	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/opentype.c
+
+lib/utils.o: lib/utils.c lib/define.h
+	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/utils.c
+
+lib/tables/cff.o: lib/tables/cff.c lib/buffer.h lib/familyname.h
+	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/cff.c
+
+lib/tables/cmap.o: lib/tables/cmap.c lib/buffer.h
+	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/cmap.c
+
+lib/tables/head.o: lib/tables/head.c lib/buffer.h
+	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/head.c
+
+lib/tables/hhea.o: lib/tables/hhea.c lib/buffer.h
+	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/hhea.c
+
+lib/tables/hmtx.o: lib/tables/hmtx.c lib/buffer.h
+	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/hmtx.c
+
+lib/tables/maxp.o: lib/tables/maxp.c lib/buffer.h
+	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/maxp.c
+
+lib/tables/name.o: lib/tables/name.c lib/buffer.h lib/familyname.h
+	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/name.c
+
+lib/tables/os2.o: lib/tables/os2.c lib/buffer.h lib/familyname.h
+	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/os2.c
+
+lib/tables/post.o: lib/tables/post.c lib/buffer.h
+	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/post.c
+
+lib/tables/tables.o: lib/tables/tables.c lib/buffer.h
+	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/tables.c
+
+main.o: main.c lib/define.h lib/buffer.h lib/familyname.h lib/utils.h lib/opentype.h
+	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c main.c
+
+$(PROGRAM): $(OBJS)
+	$(CC) $(CFLAGS) $(OTHARCH) $(OBJS) -o $(PROGRAM) $(LDFLAGS)
 
 install: build install-docs
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(BINDIR)
@@ -177,7 +240,7 @@ deconfigure-systemd:
 
 dist: $(PACKAGE_OSX)
 
-$(NAME)-$(VERSION).pkg: all configure-launchd
+$(NAME)-$(VERSION).pkg: build configure-launchd
 	-rm $(NAME)-$(VERSION).pkg
 	$(INSTALL_PROGRAM) -d $(DISTPKGDIR)$(BINDIR)
 	$(INSTALL_PROGRAM) -d $(DISTPKGDIR)$(LAUNCHDDIR)
@@ -189,7 +252,7 @@ $(NAME)-$(VERSION).pkg: all configure-launchd
 	chmod +x $(OSXPKGPOSTINSTALL)
 	$(OSXPKGBUILD) --identifier $(REVERSE_DOMAIN) --version $(VERSION) --root $(DISTPKGDIR) --ownership recommended --scripts $(DISTSCRIPTSDIR) $(NAME)-$(VERSION).pkg
 
-$(LNAME)-$(VERSION).tar.gz: maintainer-clean
+$(LNAME)-$(VERSION).tar.gz: build maintainer-clean
 	mkdir $(TEMPDIR)/$(LNAME)-$(VERSION)
 	cp -r . $(TEMPDIR)/$(LNAME)-$(VERSION)
 	-rm -rf $(TEMPDIR)/$(LNAME)-$(VERSION)/.*
@@ -197,11 +260,12 @@ $(LNAME)-$(VERSION).tar.gz: maintainer-clean
 	tar -c -z -f $(LNAME)-$(VERSION).tar.gz $(LNAME)-$(VERSION)
 
 clean:
+	-rm $(OBJS)
 	-rm -rf $(PROGRAM).dSYM
 
 distclean:
 	-rm -rf $(DISTROOTDIR) $(TEMPDIR)/$(NAME)-$(VERSION) $(LNAME)-$(VERSION)/ $(NAME)-$(VERSION).pkg $(LNAME)-$(VERSION).tar.gz
 
 maintainer-clean: clean distclean
-	-rm -rf $(PROGRAM) *~ */*~ */*/*~
+	-rm $(PROGRAM)
 
