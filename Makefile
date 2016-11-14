@@ -57,6 +57,8 @@ DISTPKGDIR = $(DISTROOTDIR)/dest_root
 DISTSCRIPTSDIR = $(DISTROOTDIR)/scripts
 OSXPKGPOSTINSTALL = $(DISTSCRIPTSDIR)/postinstall
 
+LDFLAGS += -lm
+
 # OS differences
 ifeq ($(shell sh -c 'uname -s'),Linux)
 LDFLAGS += -lsystemd
@@ -128,7 +130,7 @@ endef
 all: build
 
 build: $(SRCS)
-	$(CC) $(LDFLAGS) $(CFLAGS) $(OTHARCH) $(SRCS) -o $(PROGRAM) -lm
+	$(CC) $(CFLAGS) $(OTHARCH) $(SRCS) -o $(PROGRAM) $(LDFLAGS)
 
 install: build install-docs
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(BINDIR)
