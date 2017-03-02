@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,28 +32,27 @@
 
 */
 
-
 #ifndef __hmtx_include
 
+#if defined( _WIN32 ) || defined( _WIN64 )
+#include <winsock.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 #include "../buffer.h"
 
-
 typedef struct hmtx_hmetrics {
-  uint16_t  advanceWidth;
-   int16_t  leftSideBearing;
-} __attribute__((packed)) HMTX_HMETRICS;
-
+  uint16_t advanceWidth;
+  int16_t leftSideBearing;
+} __attribute__( ( packed ) ) HMTX_HMETRICS;
 
 typedef struct st_otf_table_hmtx {
   HMTX_HMETRICS hmetrics[4];
-   //int16_t  leftSideBearing;
-} __attribute__((packed)) OTF_TABLE_HMTX;
-
+  // int16_t  leftSideBearing;
+} __attribute__( ( packed ) ) OTF_TABLE_HMTX;
 
 BUFFER *set_table_hmtx( void );
-
 
 #define __hmtx_include
 #endif

@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,58 +32,58 @@
 
 */
 
-
 #ifndef __os2_include
 
+#if defined( _WIN32 ) || defined( _WIN64 )
+#include <winsock.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 #include "../buffer.h"
 #include "../familyname.h"
 
-
 typedef struct st_otf_table_os2 {
-  uint16_t  version;
-   int16_t  xAvgCharWidth;
-  uint16_t  usWeightClass;
-  uint16_t  usWidthClass;
-  uint16_t  fsType;
-   int16_t  ySubscriptXSize;
-   int16_t  ySubscriptYSize;
-   int16_t  ySubscriptXOffset;
-   int16_t  ySubscriptYOffset;
-   int16_t  ySuperscriptXSize;
-   int16_t  ySuperscriptYSize;
-   int16_t  ySuperscriptXOffset;
-   int16_t  ySuperscriptYOffset;
-   int16_t  yStrikeoutSize;
-   int16_t  yStrikeoutPosition;
-   int16_t  sFamilyClass;
+  uint16_t version;
+  int16_t xAvgCharWidth;
+  uint16_t usWeightClass;
+  uint16_t usWidthClass;
+  uint16_t fsType;
+  int16_t ySubscriptXSize;
+  int16_t ySubscriptYSize;
+  int16_t ySubscriptXOffset;
+  int16_t ySubscriptYOffset;
+  int16_t ySuperscriptXSize;
+  int16_t ySuperscriptYSize;
+  int16_t ySuperscriptXOffset;
+  int16_t ySuperscriptYOffset;
+  int16_t yStrikeoutSize;
+  int16_t yStrikeoutPosition;
+  int16_t sFamilyClass;
   char panose[10];
-  uint32_t  ulUnicodeRange1;
-  uint32_t  ulUnicodeRange2;
-  uint32_t  ulUnicodeRange3;
-  uint32_t  ulUnicodeRange4;
+  uint32_t ulUnicodeRange1;
+  uint32_t ulUnicodeRange2;
+  uint32_t ulUnicodeRange3;
+  uint32_t ulUnicodeRange4;
   char achVendID[4];
-  uint16_t  fsSelection;
-  uint16_t  usFirstCharIndex;
-  uint16_t  usLastCharIndex;
-   int16_t  sTypoAscender;
-   int16_t  sTypoDescender;
-   int16_t  sTypoLineGap;
-  uint16_t  usWinAscent;
-  uint16_t  usWinDescent;
-  uint32_t  ulCodePageRange1;
-  uint32_t  ulCodePageRange2;
-   int16_t  sxHeight;
-   int16_t  sCapHeight;
-  uint16_t  usDefaultChar;
-  uint16_t  usBreakChar;
-  uint16_t  usMaxContent;
-} __attribute__((packed)) OTF_TABLE_OS2;
-
+  uint16_t fsSelection;
+  uint16_t usFirstCharIndex;
+  uint16_t usLastCharIndex;
+  int16_t sTypoAscender;
+  int16_t sTypoDescender;
+  int16_t sTypoLineGap;
+  uint16_t usWinAscent;
+  uint16_t usWinDescent;
+  uint32_t ulCodePageRange1;
+  uint32_t ulCodePageRange2;
+  int16_t sxHeight;
+  int16_t sCapHeight;
+  uint16_t usDefaultChar;
+  uint16_t usBreakChar;
+  uint16_t usMaxContent;
+} __attribute__( ( packed ) ) OTF_TABLE_OS2;
 
 BUFFER *set_table_os2( struct names *font_names );
-
 
 #define __os2_include
 #endif

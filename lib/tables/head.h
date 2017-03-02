@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,41 +32,41 @@
 
 */
 
-
 #ifndef __head_include
 
+#if defined( _WIN32 ) || defined( _WIN64 )
+#include <winsock.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 #include "../buffer.h"
 
-
 typedef struct st_otf_table_head {
-  uint16_t  majorVersion;
-  uint16_t  minorVersion;
-  uint16_t  majorRevision;
-  uint16_t  minorRevision;
-  uint32_t  checkSumAdjustment;
-  uint32_t  magicNumber;
-  uint16_t  flags;
-  uint16_t  unitsPerEm;
-   int32_t  created_a;
-   int32_t  created_b;
-   int32_t  modified_a;
-   int32_t  modified_b;
-   int16_t  xMin;
-   int16_t  yMin;
-   int16_t  xMax;
-   int16_t  yMax;
-  uint16_t  macStyle;
-  uint16_t  lowestRecPPEM;
-   int16_t  fontDirectionHint;
-   int16_t  indexToLocFormat;
-   int16_t  glyphDataFormat;
-} __attribute__((packed)) OTF_TABLE_HEAD;
-
+  uint16_t majorVersion;
+  uint16_t minorVersion;
+  uint16_t majorRevision;
+  uint16_t minorRevision;
+  uint32_t checkSumAdjustment;
+  uint32_t magicNumber;
+  uint16_t flags;
+  uint16_t unitsPerEm;
+  int32_t created_a;
+  int32_t created_b;
+  int32_t modified_a;
+  int32_t modified_b;
+  int16_t xMin;
+  int16_t yMin;
+  int16_t xMax;
+  int16_t yMax;
+  uint16_t macStyle;
+  uint16_t lowestRecPPEM;
+  int16_t fontDirectionHint;
+  int16_t indexToLocFormat;
+  int16_t glyphDataFormat;
+} __attribute__( ( packed ) ) OTF_TABLE_HEAD;
 
 BUFFER *set_table_head( void );
-
 
 #define __head_include
 #endif

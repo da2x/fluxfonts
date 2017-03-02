@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,39 +32,40 @@
 
 */
 
-
 #ifndef __name_include
 
+#if defined( _WIN32 ) || defined( _WIN64 )
+#include <winsock.h>
+#else
 #include <arpa/inet.h>
-#include <iconv.h>
+#endif
 
 #include "../buffer.h"
 #include "../familyname.h"
 
-
 typedef struct st_otf_table_name {
-  uint16_t  format;
-  uint16_t  count;
-  uint16_t  stringOffset;
-}  __attribute__((packed)) OTF_TABLE_NAME;
-
+  uint16_t format;
+  uint16_t count;
+  uint16_t stringOffset;
+} __attribute__( ( packed ) ) OTF_TABLE_NAME;
 
 typedef struct st_name_record {
-  uint16_t  platformID;
-  uint16_t  encodingID;
-  uint16_t  languageID;
-  uint16_t  nameID;
-  uint16_t  length;
-  uint16_t  offset;
-}  __attribute__((packed)) NAME_RECORD;
+  uint16_t platformID;
+  uint16_t encodingID;
+  uint16_t languageID;
+  uint16_t nameID;
+  uint16_t length;
+  uint16_t offset;
+} __attribute__( ( packed ) ) NAME_RECORD;
 
-
-void put_namerecord( BUFFER *buf, BUFFER *stringbuf, char *name, uint16_t platformID,  uint16_t encodingID, uint16_t languageID, uint16_t nameID );
-void put_namerecord_w( BUFFER *buf, BUFFER *stringbuf, char *name, uint16_t platformID,  uint16_t encodingID, uint16_t languageID, uint16_t nameID );
-
+void put_namerecord( BUFFER *buf, BUFFER *stringbuf, char *name,
+                     uint16_t platformID, uint16_t encodingID,
+                     uint16_t languageID, uint16_t nameID );
+void put_namerecord_w( BUFFER *buf, BUFFER *stringbuf, char *name,
+                       uint16_t platformID, uint16_t encodingID,
+                       uint16_t languageID, uint16_t nameID );
 
 BUFFER *set_table_name( struct names *font_names );
-
 
 #define __name_include
 #endif

@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   Copyright 2012, Daniel Nebdal
   All rights reserved.
 
@@ -33,19 +33,23 @@
 
 */
 
+#include <stdint.h>
+
+#if defined( _WIN32 ) || defined( _WIN64 )
+typedef uint16_t wchar_t;
+#endif
 
 #include "familyname.h"
-
 
 const char majusculeAlphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const char minusculeAlphabet[] = "aaabcdeeefghiijklmnnooopqrstuuuvwxyz";
 
+struct names *make_fontnames( ) {
 
-struct names *make_fontnames() {
+  struct names *font_names = (struct names *) malloc( sizeof( struct names ) );
 
-  struct names *font_names = ( struct names* ) malloc( sizeof( struct names ) );
-
-  /* Seed name generator with dictionary file if present in standard locations. */
+  /* Seed name generator with dictionary file if present in standard locations.
+   */
   if ( dict_file == NULL )
     dict_file = mmap_file( "/usr/share/dict/words" );
   if ( dict_file == NULL )
@@ -54,46 +58,56 @@ struct names *make_fontnames() {
   if ( dict_file != NULL )
     dict_lines = count_lines( dict_file );
 
-
   char *foundryVendorID = random_majuscule_characters( 4 );
 
-  const char *copyrightNotice = "All rights to this work have been relinquished. The work is in the Public Domain.";
+  const char *copyrightNotice = "All rights to this work have been "
+                                "relinquished. The work is in the Public "
+                                "Domain.";
 
   const char *fontFamilyStyle = "Regular";
 
-  int familyNameWords = rand() % 3 + 1;
-  char *fontFamilyName = malloc( WORDLEN_MAX * familyNameWords + 1 );
-  char *postscriptName = malloc( WORDLEN_MAX * familyNameWords + 1 + strlen( fontFamilyStyle ) );
+  int familyNameWords = rand( ) % 3 + 1;
+  int fontFamilyNamelen = WORDLEN_MAX * familyNameWords + 1;
+  char *fontFamilyName = malloc( fontFamilyNamelen );
+  int postscriptNamelen =
+      WORDLEN_MAX * familyNameWords + 1 + strlen( fontFamilyStyle );
+  char *postscriptName = malloc( postscriptNamelen );
   fontFamilyName[0] = '\0';
   postscriptName[0] = '\0';
-  for(int i=0; i<familyNameWords; i++) {
-    char *word = random_word();
-    strcat( fontFamilyName, word );
-    strcat( postscriptName, word );
-    free(word);
-    if ( (i+1) < familyNameWords ) {
-      strcat( fontFamilyName, " " );
+  for ( int i = 0; i < familyNameWords; i++ ) {
+    char *word = random_word( );
+    strncat( fontFamilyName, word, fontFamilyNamelen );
+    strncat( postscriptName, word, postscriptNamelen );
+    free( word );
+    if ( ( i + 1 ) < familyNameWords ) {
+      strncat( fontFamilyName, " ", fontFamilyNamelen );
     }
   }
-  strcat( postscriptName, fontFamilyStyle );
+  strncat( postscriptName, fontFamilyStyle, postscriptNamelen );
 
   if ( dict_file != NULL )
     free_positions( dict_lines );
 
   char *versionString = "Version 1.000";
-  char *fullFontName = malloc( strlen( fontFamilyName ) + strlen( fontFamilyStyle ) + 2 );
-  fullFontName[0] = '\0';
-  strcat( fullFontName, fontFamilyName );
-  strcat( fullFontName, " ");
-  strcat( fullFontName, fontFamilyStyle );
 
-  char *uniqueFontName = malloc( strlen( foundryVendorID ) + strlen( fullFontName ) + strlen( versionString ) + 3 );
+  int fullFontNamelen =
+      strlen( fontFamilyName ) + strlen( fontFamilyStyle ) + 2;
+  char *fullFontName = malloc( fullFontNamelen );
+  fullFontName[0] = '\0';
+  strncat( fullFontName, fontFamilyName, fullFontNamelen );
+  strncat( fullFontName, " ", fullFontNamelen );
+  strncat( fullFontName, fontFamilyStyle, fullFontNamelen );
+
+  int uniqueFontNamelen = strlen( foundryVendorID ) + strlen( fullFontName ) +
+                          strlen( versionString ) + 3;
+  char *uniqueFontName = malloc( uniqueFontNamelen );
   uniqueFontName[0] = '\0';
-  strcat( uniqueFontName, foundryVendorID );
-  strcat( uniqueFontName, ";" );
-  strcat( uniqueFontName, fullFontName );
-  strcat( uniqueFontName, ";" );
-  strcat( uniqueFontName, versionString );
+
+  strncat( uniqueFontName, foundryVendorID, uniqueFontNamelen );
+  strncat( uniqueFontName, ";", uniqueFontNamelen );
+  strncat( uniqueFontName, fullFontName, uniqueFontNamelen );
+  strncat( uniqueFontName, ";", uniqueFontNamelen );
+  strncat( uniqueFontName, versionString, uniqueFontNamelen );
 
   font_names->copyrightNotice = copyrightNotice;
   font_names->fontFamilyName = fontFamilyName;
@@ -107,37 +121,41 @@ struct names *make_fontnames() {
   return font_names;
 }
 
+char *random_majuscule_characters( int numberOfCharacters ) {
 
-char* random_majuscule_characters( int numberOfCharacters ) {
-
+  int randchari;
   char *random_majuscule_characters = malloc( numberOfCharacters + 1 );
 
   for ( int i = 0; i < numberOfCharacters; i++ ) {
-    random_majuscule_characters[i] = majusculeAlphabet[rand() % ( sizeof( majusculeAlphabet ) - 1 )];
+    randchari = rand( ) % ( sizeof( majusculeAlphabet ) - 1 );
+    random_majuscule_characters[i] = majusculeAlphabet[randchari];
   }
   random_majuscule_characters[numberOfCharacters] = 0;
 
   return random_majuscule_characters;
 }
 
+char *random_minuscule_characters( int numberOfCharacters ) {
 
-char* random_minuscule_characters( int numberOfCharacters ) {
-
+  int randchari;
   char *random_minuscule_characters = malloc( numberOfCharacters + 1 );
 
   for ( int i = 0; i < numberOfCharacters; i++ ) {
-    random_minuscule_characters[i] = minusculeAlphabet[rand() % ( sizeof( minusculeAlphabet ) - 1 )];
+    randchari = rand( ) % ( sizeof( minusculeAlphabet ) - 1 );
+    random_minuscule_characters[i] = minusculeAlphabet[randchari];
   }
   random_minuscule_characters[numberOfCharacters] = 0;
 
   return random_minuscule_characters;
 }
 
-
 BUFFER *mmap_file( char *filename ) {
-
+#if defined( _WIN32 ) || defined( _WIN64 )
+  return NULL;
+#else
   int fd = open( filename, O_RDONLY );
-  if ( fd == -1 ) return NULL;
+  if ( fd == -1 )
+    return NULL;
 
   BUFFER *result = malloc( sizeof( BUFFER ) );
   struct stat *fileInfo = malloc( sizeof( struct stat ) );
@@ -148,16 +166,19 @@ BUFFER *mmap_file( char *filename ) {
   free( fileInfo );
 
   return result;
+#endif
 }
-
 
 POSITIONS *count_lines( BUFFER *data ) {
 
   POSITIONS *lineBuffer = malloc( sizeof( POSITIONS ) );
 
   int lines = 0;
-  for( int i=0; i < data->size; i++ ) {
-    if ( data->data[i] == '\n' ) lines++;
+  int i = 0;
+  while ( i < data->size ) {
+    if ( data->data[i] == '\n' )
+      lines++;
+    i++;
   }
 
   lineBuffer->count = lines;
@@ -165,16 +186,15 @@ POSITIONS *count_lines( BUFFER *data ) {
   lineBuffer->positions[0] = 0;
   int lineBufferPos = 1;
 
-  for( int i=1; i < ( data->size - 1 ); i++ ) {
+  for ( int i = 1; i < ( data->size - 1 ); i++ ) {
     if ( data->data[i] == '\n' )
-      lineBuffer->positions[lineBufferPos++] = i+1;
+      lineBuffer->positions[lineBufferPos++] = i + 1;
   }
 
   return lineBuffer;
 }
 
-
-char *word_from_pos( char* data ) {
+char *word_from_pos( char *data ) {
 
   int length = 0;
   char *dataPointer = data;
@@ -190,20 +210,22 @@ char *word_from_pos( char* data ) {
   return word;
 }
 
-char *random_word() {
+char *random_word( ) {
 
   if ( dict_file == NULL ) {
     char *word = malloc( 10 );
-    bzero( word, 10) ;
-    strcat( word, random_majuscule_characters( 1 ) );
-    strcat( word, random_minuscule_characters( rand() % 8 + 1 ) );
+
+    memset( word, 0, 10 );
+
+    strncat( word, random_majuscule_characters( 1 ), 10 );
+    strncat( word, random_minuscule_characters( rand( ) % 8 + 1 ), 10 );
 
     return word;
 
   } else {
-    int wordNum = rand() % ( dict_lines->count + 1 );
+    int wordNum = rand( ) % ( dict_lines->count + 1 );
     int wordOffset = dict_lines->positions[wordNum];
-    char *wordStart = ( char* ) &dict_file->data[wordOffset];
+    char *wordStart = (char *) &dict_file->data[wordOffset];
     char *word = word_from_pos( wordStart );
     word[0] = toupper( word[0] );
 

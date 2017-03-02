@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,13 +32,17 @@
 
 */
 
+#include <stdint.h>
+
+#if defined( _WIN32 ) || defined( _WIN64 )
+typedef uint16_t wchar_t;
+#endif
 
 #include "tables.h"
 
+void *alloc_table_record_entry( BUFFER *buf, char *tag ) {
 
-void* alloc_table_record_entry( BUFFER *buf, char *tag ) {
-
-  OTF_TABLE_RECORD *result =  buffer_alloc( buf, sizeof( OTF_TABLE_RECORD ) );
+  OTF_TABLE_RECORD *result = buffer_alloc( buf, sizeof( OTF_TABLE_RECORD ) );
   memcpy( result->tag, tag, 4 );
 
   return result;
@@ -46,8 +50,8 @@ void* alloc_table_record_entry( BUFFER *buf, char *tag ) {
 
 uint32_t calc_table_checksum( void *start, size_t length ) {
 
-  uint32_t *pos = ( uint32_t* ) start;
-  uint32_t *end = ( uint32_t* ) ( ( size_t ) pos + length );
+  uint32_t *pos = (uint32_t *) start;
+  uint32_t *end = (uint32_t *) ( (size_t) pos + length );
   uint32_t checksum = 0;
 
   while ( pos < end ) {
@@ -60,7 +64,7 @@ uint32_t calc_table_checksum( void *start, size_t length ) {
 
 void set_table_records( BUFFER *fontbuffer, OTF_TABLE_RECORD *table ) {
 
-  uint32_t *pos = ( uint32_t* ) &fontbuffer->data[table->offset];
+  uint32_t *pos = (uint32_t *) &fontbuffer->data[table->offset];
   uint32_t checksum = calc_table_checksum( pos, table->length );
   table->offset = htonl( table->offset );
   table->length = htonl( table->length );

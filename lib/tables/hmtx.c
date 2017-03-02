@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,14 +32,19 @@
 
 */
 
+#include <stdint.h>
+
+#if defined( _WIN32 ) || defined( _WIN64 )
+typedef uint16_t wchar_t;
+#endif
 
 #include "hmtx.h"
-
 
 BUFFER *set_table_hmtx( void ) {
 
   BUFFER *hmtx_buf = makebuffer( sizeof( OTF_TABLE_HMTX ) );
-  OTF_TABLE_HMTX *t_hmtxtable = buffer_alloc( hmtx_buf, sizeof( OTF_TABLE_HMTX ) );
+  OTF_TABLE_HMTX *t_hmtxtable =
+      buffer_alloc( hmtx_buf, sizeof( OTF_TABLE_HMTX ) );
   t_hmtxtable->hmetrics[0].advanceWidth = htons( 500 );
   t_hmtxtable->hmetrics[1].advanceWidth = htons( 0 );
   t_hmtxtable->hmetrics[2].advanceWidth = htons( 300 );

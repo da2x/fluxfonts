@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,31 +32,47 @@
 
 */
 
-
 #include "main.h"
-
 
 char *datadir = NULL;
 char *fontsetlist = NULL;
 char *fontdir = NULL;
 
+#if defined( _WIN32 ) || defined( _WIN64 )
+int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
+                    LPSTR szCmdLine, int iCmdShow ) {
 
-int main() {
+  int exit = main( );
+
+  return exit;
+}
+#endif
+
+void posixint( ) {
 
   util_daemonize_self( );
+
+  util_init_rand( );
+}
+
+int main( ) {
+
+#if !defined( _WIN32 ) && !defined( _WIN64 )
+  posixint( );
+#endif
+
   util_single_process_lock( );
 
   if ( datadir == NULL )
-    datadir = util_get_datadir();
+    datadir = util_get_datadir( );
   if ( fontsetlist == NULL ) {
-    fontsetlist = ( char* ) calloc( ( strlen( datadir ) + strlen( INSTALLED_FONTS_FILE ) + 1 ), sizeof( char ) );
-    strcat( fontsetlist, datadir );
-    strcat( fontsetlist, INSTALLED_FONTS_FILE );
+    int fontsetlistlen = strlen( datadir ) + strlen( INSTALLED_FONTS_FILE ) + 1;
+    fontsetlist = (char *) calloc( fontsetlistlen, sizeof( char ) );
+    strncat( fontsetlist, datadir, fontsetlistlen );
+    strncat( fontsetlist, INSTALLED_FONTS_FILE, fontsetlistlen );
   }
   if ( fontdir == NULL )
-    fontdir = util_get_fontdir();
-
-  util_init_rand();
+    fontdir = util_get_fontdir( );
 
 /* Let systemd know the service is ready. */
 #ifdef SYSTEMD
@@ -64,37 +80,46 @@ int main() {
 #endif
 
   /* Main loop that continuously makes and replaces new fonts. */
+
   for ( ;; ) {
 
-    /* Check that required folders are still in place. Recreate or exit when needed. */
+    /* Check that required folders are still in place. Recreate or exit when
+     * needed. */
     if ( access( datadir, R_OK | X_OK | W_OK ) != 0 )
-      util_get_datadir();
+      util_get_datadir( );
     if ( access( fontdir, R_OK | X_OK | W_OK ) != 0 )
-      util_get_fontdir();
+      util_get_fontdir( );
 
     /* Delete all previously installed fonts */
     util_uninstall_all_fonts( fontsetlist, fontdir );
 
     /* Assemble and install one–six new fonts */
-    int num_new_fonts = ( rand() % 5 ) + 1;
-    for ( int i=0; i < num_new_fonts; i++ ) {
-      font_generator();
+    int num_new_fonts = ( rand( ) % 5 ) + 1;
+    for ( int i = 0; i < num_new_fonts; i++ ) {
+      font_generator( );
     }
+
+#if !defined( _WIN32 ) && !defined( _WIN64 )
     if ( dict_file != NULL ) {
       munmap( dict_file->data, dict_file->size );
       free( dict_file );
       dict_file = NULL;
     }
+#endif
 
     /* When a power source is online, sleep for between 2 and 20 minutes
        When on battery power, sleep for between 15 and 40 minutes. */
     int sleep_cycle = 0;
     if ( util_power_supply_online( ) )
-      sleep_cycle = 120 + ( rand() % 1080 );
+      sleep_cycle = 120 + ( rand( ) % 1080 );
     else
-      sleep_cycle = 900 + ( rand() % 1500 );
+      sleep_cycle = 900 + ( rand( ) % 1500 );
 
+#if defined( _WIN32 ) || defined( _WIN64 )
+    Sleep( sleep_cycle * 1000 );
+#else
     sleep( sleep_cycle );
+#endif
   }
 
   return 0; /* When did true stop being true? */

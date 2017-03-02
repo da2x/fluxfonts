@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,66 +32,63 @@
 
 */
 
-
 #ifndef __cmap_include
 
+#if defined( _WIN32 ) || defined( _WIN64 )
+#include <winsock.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 #include "../buffer.h"
 
-
 typedef struct st_otf_cmap_encoding_record {
-  uint16_t  platformID;
-  uint16_t  encodingID;
-  uint32_t  offset;
-} __attribute__((packed)) OTF_CMAP_ENCODING_RECORD;
-
+  uint16_t platformID;
+  uint16_t encodingID;
+  uint32_t offset;
+} __attribute__( ( packed ) ) OTF_CMAP_ENCODING_RECORD;
 
 typedef struct st_otf_table_cmap {
-  uint16_t  version;
-  uint16_t  numTables;
+  uint16_t version;
+  uint16_t numTables;
   OTF_CMAP_ENCODING_RECORD record1;
   OTF_CMAP_ENCODING_RECORD record2;
   OTF_CMAP_ENCODING_RECORD record3;
-}  __attribute__((packed)) OTF_TABLE_CMAP;
-
+} __attribute__( ( packed ) ) OTF_TABLE_CMAP;
 
 typedef struct st_otf_cmap_format4_enctable {
-  uint16_t  format;
-  uint16_t  length;
-  uint16_t  language;
-  uint16_t  segCountX2;
-  uint16_t  searchRange;
-  uint16_t  entrySelector;
-  uint16_t  rangeShift;
-  uint16_t  endCount1;
-  uint16_t  endCount2;
-  uint16_t  endCount3;
-  uint16_t  reservedPad;
-  uint16_t  startCount1;
-  uint16_t  startCount2;
-  uint16_t  startCount3;
-   int16_t  idDelta1;
-   int16_t  idDelta2;
-   int16_t  idDelta3;
-  uint16_t  idRangeOffset1;
-  uint16_t  idRangeOffset2;
-  uint16_t  idRangeOffset3;
-} __attribute__((packed)) OTF_CMAP_FORMAT4_ENCTABLE;
-
+  uint16_t format;
+  uint16_t length;
+  uint16_t language;
+  uint16_t segCountX2;
+  uint16_t searchRange;
+  uint16_t entrySelector;
+  uint16_t rangeShift;
+  uint16_t endCount1;
+  uint16_t endCount2;
+  uint16_t endCount3;
+  uint16_t reservedPad;
+  uint16_t startCount1;
+  uint16_t startCount2;
+  uint16_t startCount3;
+  int16_t idDelta1;
+  int16_t idDelta2;
+  int16_t idDelta3;
+  uint16_t idRangeOffset1;
+  uint16_t idRangeOffset2;
+  uint16_t idRangeOffset3;
+} __attribute__( ( packed ) ) OTF_CMAP_FORMAT4_ENCTABLE;
 
 typedef struct st_otf_cmap_format6_enctable {
-  uint16_t  format;
-  uint16_t  length;
-  uint16_t  language;
-  uint16_t  firstCode;
-  uint16_t  entryCount;
-  uint16_t  entry[38];
-} __attribute__((packed)) OTF_CMAP_FORMAT6_ENCTABLE;
-
+  uint16_t format;
+  uint16_t length;
+  uint16_t language;
+  uint16_t firstCode;
+  uint16_t entryCount;
+  uint16_t entry[38];
+} __attribute__( ( packed ) ) OTF_CMAP_FORMAT6_ENCTABLE;
 
 BUFFER *set_table_cmap( void );
-
 
 #define __cmapp_include
 #endif

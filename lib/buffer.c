@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   Copyright 2012, Daniel Nebdal
   All rights reserved.
 
@@ -33,23 +33,26 @@
 
 */
 
+#include <stdint.h>
+
+#if defined( _WIN32 ) || defined( _WIN64 )
+typedef uint16_t wchar_t;
+#endif
 
 #include "buffer.h"
 
-
-BUFFER* makebuffer( int size ) {
+BUFFER *makebuffer( int size ) {
 
   BUFFER *result = malloc( sizeof( BUFFER ) );
   result->size = size;
   result->position = 0;
-  result->data = ( uint8_t* ) malloc( result->size );
-  bzero(result->data, size);
+  result->data = (uint8_t *) malloc( result->size );
+  memset( result->data, 0, size );
 
   return result;
 }
 
-
-void* buffer_alloc( BUFFER *buf, int size ) {
+void *buffer_alloc( BUFFER *buf, int size ) {
 
   void *result;
 
@@ -63,7 +66,6 @@ void* buffer_alloc( BUFFER *buf, int size ) {
   return result;
 }
 
-
 void insert_buffer( BUFFER *target, BUFFER *source ) {
 
   void *dst = buffer_alloc( target, source->position );
@@ -71,34 +73,26 @@ void insert_buffer( BUFFER *target, BUFFER *source ) {
   memcpy( dst, source->data, source->position );
 }
 
-
-void* get_current( BUFFER *buf ) {
-
-  return &buf->data[buf->position];
-}
-
+void *get_current( BUFFER *buf ) { return &buf->data[buf->position]; }
 
 size_t get_offset( BUFFER *buf, void *ptr ) {
 
-  return ( size_t ) ptr - ( size_t ) buf->data;
+  return (size_t) ptr - (size_t) buf->data;
 }
 
-
-uint8_t*  put_int8( BUFFER *buf, uint8_t value ) {
+uint8_t *put_int8( BUFFER *buf, uint8_t value ) {
 
   uint8_t *result = buffer_alloc( buf, 1 );
   *result = value;
   return result;
 }
 
-
-uint16_t* put_int16( BUFFER *buf, uint16_t value ) {
+uint16_t *put_int16( BUFFER *buf, uint16_t value ) {
 
   uint16_t *result = buffer_alloc( buf, 2 );
   *result = value;
   return result;
 }
-
 
 void free_buffer( BUFFER *buf ) {
 
@@ -106,15 +100,13 @@ void free_buffer( BUFFER *buf ) {
   free( buf );
 }
 
-
 void free_positions( POSITIONS *pos ) {
 
   free( pos->positions );
   free( pos );
 }
 
-
-void* copy_string_to_buffer( BUFFER *buf, char *string ) {
+void *copy_string_to_buffer( BUFFER *buf, char *string ) {
 
   int length = strlen( string );
   char *destination = buffer_alloc( buf, length );

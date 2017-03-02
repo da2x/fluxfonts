@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,25 +32,25 @@
 
 */
 
-
 #ifndef __maxp_include
 
+#if defined( _WIN32 ) || defined( _WIN64 )
+#include <winsock.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 #include "../buffer.h"
-
 
 typedef struct st_otf_table_maxp {
   struct {
     uint16_t major;
     uint16_t minor;
   } version;
-  uint16_t  numGlyphs;
-} __attribute__((packed)) OTF_TABLE_MAXP;
-
+  uint16_t numGlyphs;
+} __attribute__( ( packed ) ) OTF_TABLE_MAXP;
 
 BUFFER *set_table_maxp( int CFFnumGlyphs );
-
 
 #define __maxp_include
 #endif

@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,36 +32,55 @@
 
 */
 
-
 #ifndef __opentype_include
 
+#if defined( _WIN32 ) || defined( _WIN64 )
+#include <winsock.h>
+#else
 #include <arpa/inet.h>
+#endif
+
+#include "wincompatstdint.h"
+
+#ifdef _WIN32
+#define _X86_
+#endif
+#ifdef _WIN64
+#define _AMD64_
+#endif
+
+#if defined( _WIN32 ) || defined( _WIN64 )
+#include <Winreg.h>
+#include <io.h>
+#define access _access
+#define close _close
+#define write _write
+#endif
+
 #include <math.h>
 
 #include "buffer.h"
 #include "familyname.h"
 
-#include "tables/tables.h"
+#include "tables/cff.h"
+#include "tables/cmap.h"
 #include "tables/head.h"
 #include "tables/hhea.h"
-#include "tables/cff.h"
-#include "tables/maxp.h"
-#include "tables/os2.h"
 #include "tables/hmtx.h"
+#include "tables/maxp.h"
 #include "tables/name.h"
-#include "tables/cmap.h"
+#include "tables/os2.h"
 #include "tables/post.h"
-
+#include "tables/tables.h"
 
 BUFFER *assemble_opentype_font( struct names *font_names );
-void *insert_full_table( BUFFER *complete_font, OTF_TABLE_RECORD *head_entry, BUFFER *insert_me );
+void *insert_full_table( BUFFER *complete_font, OTF_TABLE_RECORD *head_entry,
+                         BUFFER *insert_me );
 int font_generator( void );
-
 
 extern char *datadir;
 extern char *fontsetlist;
 extern char *fontdir;
-
 
 #define __opentype_include
 #endif

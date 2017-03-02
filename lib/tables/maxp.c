@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,14 +32,19 @@
 
 */
 
+#include <stdint.h>
+
+#if defined( _WIN32 ) || defined( _WIN64 )
+typedef uint16_t wchar_t;
+#endif
 
 #include "maxp.h"
-
 
 BUFFER *set_table_maxp( int CFFnumGlyphs ) {
 
   BUFFER *maxp_buf = makebuffer( sizeof( OTF_TABLE_MAXP ) );
-  OTF_TABLE_MAXP *t_maxptable = buffer_alloc( maxp_buf, sizeof( OTF_TABLE_MAXP ) );
+  OTF_TABLE_MAXP *t_maxptable =
+      buffer_alloc( maxp_buf, sizeof( OTF_TABLE_MAXP ) );
   t_maxptable->version.minor = htons( 0x5000 );
   t_maxptable->numGlyphs = htons( ntohs( CFFnumGlyphs ) );
 

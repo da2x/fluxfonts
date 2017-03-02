@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,14 +32,21 @@
 
 */
 
+#include <stdint.h>
+
+#if defined( _WIN32 ) || defined( _WIN64 )
+typedef uint16_t wchar_t;
+#endif
 
 #include "cmap.h"
 
-
 BUFFER *set_table_cmap( void ) {
 
-  BUFFER *cmap_buf = makebuffer( sizeof( OTF_TABLE_CMAP ) + sizeof( OTF_CMAP_FORMAT4_ENCTABLE ) + sizeof( OTF_CMAP_FORMAT6_ENCTABLE ) );
-  OTF_TABLE_CMAP *t_cmaptable = buffer_alloc( cmap_buf, sizeof( OTF_TABLE_CMAP ) );
+  BUFFER *cmap_buf = makebuffer( sizeof( OTF_TABLE_CMAP ) +
+                                 sizeof( OTF_CMAP_FORMAT4_ENCTABLE ) +
+                                 sizeof( OTF_CMAP_FORMAT6_ENCTABLE ) );
+  OTF_TABLE_CMAP *t_cmaptable =
+      buffer_alloc( cmap_buf, sizeof( OTF_TABLE_CMAP ) );
   t_cmaptable->version = 0;
   t_cmaptable->numTables = htons( 3 );
   t_cmaptable->record1.platformID = 0;
@@ -49,7 +56,8 @@ BUFFER *set_table_cmap( void ) {
   t_cmaptable->record3.platformID = htons( 3 );
   t_cmaptable->record3.encodingID = htons( 1 );
 
-  OTF_CMAP_FORMAT4_ENCTABLE *t_cmap_encode4 = buffer_alloc( cmap_buf, sizeof( OTF_CMAP_FORMAT4_ENCTABLE ) );
+  OTF_CMAP_FORMAT4_ENCTABLE *t_cmap_encode4 =
+      buffer_alloc( cmap_buf, sizeof( OTF_CMAP_FORMAT4_ENCTABLE ) );
   t_cmap_encode4->format = htons( 4 );
   t_cmap_encode4->length = htons( 40 );
   t_cmap_encode4->segCountX2 = htons( 6 );
@@ -66,7 +74,8 @@ BUFFER *set_table_cmap( void ) {
   t_cmap_encode4->idDelta2 = htons( -44 );
   t_cmap_encode4->idDelta3 = htons( 1 );
 
-  OTF_CMAP_FORMAT6_ENCTABLE *t_cmap_encode6 = buffer_alloc( cmap_buf, sizeof( OTF_CMAP_FORMAT6_ENCTABLE ) );
+  OTF_CMAP_FORMAT6_ENCTABLE *t_cmap_encode6 =
+      buffer_alloc( cmap_buf, sizeof( OTF_CMAP_FORMAT6_ENCTABLE ) );
   t_cmap_encode6->format = htons( 6 );
   t_cmap_encode6->length = htons( 86 );
   t_cmap_encode6->firstCode = htons( 9 );
@@ -76,9 +85,11 @@ BUFFER *set_table_cmap( void ) {
   t_cmap_encode6->entry[23] = htons( 1 );
   t_cmap_encode6->entry[37] = htons( 2 );
 
-  /* Record one and three point at the same character. Record two is offset immediatly following record one. */
+  /* Record one and three point at the same character. Record two is offset
+   * immediatly following record one. */
   t_cmaptable->record1.offset = htonl( sizeof( OTF_TABLE_CMAP ) );
-  t_cmaptable->record2.offset = htonl( sizeof( OTF_TABLE_CMAP ) + sizeof( OTF_CMAP_FORMAT4_ENCTABLE) );
+  t_cmaptable->record2.offset =
+      htonl( sizeof( OTF_TABLE_CMAP ) + sizeof( OTF_CMAP_FORMAT4_ENCTABLE ) );
   t_cmaptable->record3.offset = htonl( sizeof( OTF_TABLE_CMAP ) );
 
   return cmap_buf;

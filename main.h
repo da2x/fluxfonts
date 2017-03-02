@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,9 +32,23 @@
 
 */
 
+#include <stdint.h>
 
-#include "lib/define.h"
+#ifdef _WIN32
+#define _X86_
+#endif
+#ifdef _WIN64
+#define _AMD64_
+#endif
+
+#if defined( _WIN32 ) || defined( _WIN64 )
+typedef uint16_t wchar_t;
+#define access _access
+#include <synchapi.h>
+#endif
+
 #include "lib/buffer.h"
+#include "lib/define.h"
 #include "lib/familyname.h"
 #include "lib/utils.h"
 
@@ -46,3 +60,12 @@
 
 BUFFER *dict_file = NULL;
 POSITIONS *dict_lines = NULL;
+
+int main( void );
+
+void posixint( void );
+
+#if defined( _WIN32 ) || defined( _WIN64 )
+int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
+                    LPSTR szCmdLine, int iCmdShow );
+#endif

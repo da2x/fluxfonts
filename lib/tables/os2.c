@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,9 +32,13 @@
 
 */
 
+#include <stdint.h>
+
+#if defined( _WIN32 ) || defined( _WIN64 )
+typedef uint16_t wchar_t;
+#endif
 
 #include "os2.h"
-
 
 BUFFER *set_table_os2( struct names *font_names ) {
 
@@ -57,15 +61,15 @@ BUFFER *set_table_os2( struct names *font_names ) {
   t_os2table->yStrikeoutPosition = htons( 8 );
   t_os2table->sFamilyClass = htons( 0 );
   t_os2table->panose[0] = 2; // Latin text.
-  t_os2table->panose[1] = 2;  // Cove style
-  t_os2table->panose[2] = 5;  // Book weight
-  t_os2table->panose[3] = 9;  // Monospace
-  t_os2table->panose[4] = 8;  // High contrast
-  t_os2table->panose[5] = 0;  // Any stroke variation
-  t_os2table->panose[6] = 0;  // Any arm
-  t_os2table->panose[7] = 9;  // Oblique letterform
-  t_os2table->panose[8] = 0;  // Any midline
-  t_os2table->panose[9] = 3;  // Constant x-height
+  t_os2table->panose[1] = 2; // Cove style
+  t_os2table->panose[2] = 5; // Book weight
+  t_os2table->panose[3] = 9; // Monospace
+  t_os2table->panose[4] = 8; // High contrast
+  t_os2table->panose[5] = 0; // Any stroke variation
+  t_os2table->panose[6] = 0; // Any arm
+  t_os2table->panose[7] = 9; // Oblique letterform
+  t_os2table->panose[8] = 0; // Any midline
+  t_os2table->panose[9] = 3; // Constant x-height
   t_os2table->ulUnicodeRange1 = htonl( 1 );
   t_os2table->ulUnicodeRange2 = htonl( 0 );
   t_os2table->ulUnicodeRange3 = htonl( 0 );

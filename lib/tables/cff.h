@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   Copyright 2012, Daniel Nebdal
   All rights reserved.
 
@@ -33,62 +33,60 @@
 
 */
 
-
 #ifndef __cff_include
 
-#include "arpa/inet.h"
+#if defined( _WIN32 ) || defined( _WIN64 )
+#include <winsock.h>
+#else
+#include <arpa/inet.h>
+#endif
 
 #include "../buffer.h"
 #include "../familyname.h"
 
-
 typedef struct cff_header {
-   uint8_t  majorVersion;
-   uint8_t  minorVersion;
-   uint8_t  headerSize;
-   uint8_t  offsetSize;
-}  __attribute__((packed)) CFF_HEADER;
-
+  uint8_t majorVersion;
+  uint8_t minorVersion;
+  uint8_t headerSize;
+  uint8_t offsetSize;
+} __attribute__( ( packed ) ) CFF_HEADER;
 
 typedef struct cff_index_empty {
-   uint16_t  count;
-}  __attribute__((packed)) CFF_INDEX_EMPTY;
-
+  uint16_t count;
+} __attribute__( ( packed ) ) CFF_INDEX_EMPTY;
 
 typedef struct cff_index_single_entry {
-   uint16_t  count;
-   uint8_t  offsetSize;
-   uint8_t  offset;
-   uint8_t  length;
-}  __attribute__((packed)) CFF_INDEX_SINGLE_ENTRY;
-
+  uint16_t count;
+  uint8_t offsetSize;
+  uint8_t offset;
+  uint8_t length;
+} __attribute__( ( packed ) ) CFF_INDEX_SINGLE_ENTRY;
 
 typedef struct cff_index_string {
-   uint16_t  count;
-   uint8_t  offsetSize;
-   uint8_t  offset1;
-   uint8_t  offset2;
-   uint8_t  offset3;
-   uint8_t  length;
-}  __attribute__((packed)) CFF_INDEX_STRING;
-
+  uint16_t count;
+  uint8_t offsetSize;
+  uint8_t offset1;
+  uint8_t offset2;
+  uint8_t offset3;
+  uint8_t length;
+} __attribute__( ( packed ) ) CFF_INDEX_STRING;
 
 typedef struct cff_index_chars {
-   uint16_t  count;
-   uint8_t  offsetSize;
-   uint8_t  offset1;
-   uint8_t  offset2;
-   uint8_t  offset3;
-   uint8_t  offset4;
-   uint8_t  length;
-}  __attribute__((packed)) CFF_INDEX_CHARS;
+  uint16_t count;
+  uint8_t offsetSize;
+  uint8_t offset1;
+  uint8_t offset2;
+  uint8_t offset3;
+  uint8_t offset4;
+  uint8_t length;
+} __attribute__( ( packed ) ) CFF_INDEX_CHARS;
 
 typedef struct private_dict_offsets {
-   int charstrings_pos;
-   int private_pos;
-   int encoding_pos;
-   int charset_pos;
-   int private_len;
+  int charstrings_pos;
+  int private_pos;
+  int encoding_pos;
+  int charset_pos;
+  int private_len;
 } PRIVATE_DICT_OFFSETS;
 
 struct cff_result {
@@ -99,7 +97,7 @@ struct cff_result {
 int get_encoded_charstring_len( int number );
 BUFFER *encode_charstring_number( int number );
 int decode_charstring_number( BUFFER *number );
-struct cff_result *set_table_cff( struct names* font_names );
+struct cff_result *set_table_cff( struct names *font_names );
 BUFFER *make_topdict_offsets( PRIVATE_DICT_OFFSETS *offsets );
 
 #define __cff_include

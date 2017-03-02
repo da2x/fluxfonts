@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,40 +32,40 @@
 
 */
 
-
 #ifndef __hhea_include
 
+#if defined( _WIN32 ) || defined( _WIN64 )
+#include <winsock.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 #include "../buffer.h"
-
 
 typedef struct st_otf_table_hhea {
   struct {
     uint16_t major;
     uint16_t minor;
   } version;
-   int16_t  ascender;
-   int16_t  descender;
-   int16_t  lineGap;
-  uint16_t  advanceWidthMax;
-   int16_t  minLeftSideBearing;
-   int16_t  minRightSideBearing;
-   int16_t  xMaxExtent;
-   int16_t  caretSlopeRise;
-   int16_t  caretSlopeRun;
-   int16_t  caretOffset;
-   int16_t  reserved0;
-   int16_t  reserved1;
-   int16_t  reserved2;
-   int16_t  reserved3;
-   int16_t  metricDataFormat;
-  uint16_t  numberOfHMetrics;
-}  __attribute__((packed)) OTF_TABLE_HHEA;
-
+  int16_t ascender;
+  int16_t descender;
+  int16_t lineGap;
+  uint16_t advanceWidthMax;
+  int16_t minLeftSideBearing;
+  int16_t minRightSideBearing;
+  int16_t xMaxExtent;
+  int16_t caretSlopeRise;
+  int16_t caretSlopeRun;
+  int16_t caretOffset;
+  int16_t reserved0;
+  int16_t reserved1;
+  int16_t reserved2;
+  int16_t reserved3;
+  int16_t metricDataFormat;
+  uint16_t numberOfHMetrics;
+} __attribute__( ( packed ) ) OTF_TABLE_HHEA;
 
 BUFFER *set_table_hhea( );
-
 
 #define __hhea_include
 #endif

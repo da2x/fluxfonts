@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,13 +32,15 @@
 
 */
 
-
 #ifndef __tables_included
 
+#if defined( _WIN32 ) || defined( _WIN64 )
+#include <winsock.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 #include "../buffer.h"
-
 
 typedef struct st_otf_offset_table {
   union {
@@ -48,25 +50,22 @@ typedef struct st_otf_offset_table {
     } version;
     char tag[4];
   } versiontag;
-  uint16_t  numTables;
-  uint16_t  searchRange;
-  uint16_t  entrySelector;
-  uint16_t  rangeShift;
-}  __attribute__((packed)) OTF_OFFSET_TABLE;
-
+  uint16_t numTables;
+  uint16_t searchRange;
+  uint16_t entrySelector;
+  uint16_t rangeShift;
+} __attribute__( ( packed ) ) OTF_OFFSET_TABLE;
 
 typedef struct st_otf_table_record {
   char tag[4];
-  uint32_t  checkSum;
-  uint32_t  offset;
-  uint32_t  length;
-}  __attribute__((packed)) OTF_TABLE_RECORD;
+  uint32_t checkSum;
+  uint32_t offset;
+  uint32_t length;
+} __attribute__( ( packed ) ) OTF_TABLE_RECORD;
 
-
-void* alloc_table_record_entry( BUFFER *buf, char *tag );
+void *alloc_table_record_entry( BUFFER *buf, char *tag );
 uint32_t calc_table_checksum( void *start, size_t length );
 void set_table_records( BUFFER *fontbuffer, OTF_TABLE_RECORD *table );
-
 
 #define __tables_included
 #endif

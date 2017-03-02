@@ -6,20 +6,33 @@ Fedora:
 Debian/Ubuntu:
 * systemd-dev
 
+Windows:
+* Visual Studio 2017 with clang
+* Nullsoft Scriptable Installer (NSIS)
 
-Building
+
+Building on POSIX-like operating systems
 
 1. make
 
 
-Installing
+Installing on POSIX-like operating systems
 
 1. make install [install-daemon] [--prefix=/usr/local]
 
 Linux installs a systemd service file for running the daemon with
 `install-daemon` and macOS installs a launchd service file. FreeBSD
 will need to configure a service or cron to run the daemon on boot.
-Windows is unsupported.
+
+
+Building on Windows
+
+1. Open and build the solution
+
+
+Installing on Windows
+
+1. Run fluxfonts_installer.exe
 
 
 Notes for package  distributors

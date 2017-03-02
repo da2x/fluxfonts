@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   Copyright 2012, Daniel Nebdal
   All rights reserved.
 
@@ -33,45 +33,45 @@
 
 */
 
-
 #ifndef __names_include
 
-#include <stdio.h>
 #include <ctype.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h>
+#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#if defined( _WIN32 ) || defined( _WIN64 )
+#define rand util_winrand
+#else
 #include <sys/mman.h>
+#include <unistd.h>
+#endif
 
 #include "buffer.h"
 #include "utils.h"
 
-
 struct names {
-	const char *copyrightNotice;
-	char *fontFamilyName;
-	const char *fontFamilyStyle;
-	char *uniqueFontName;
-	char *versionString;
-	char *fullFontName;
-	char *postscriptName;
-	char *foundryVendorID;
+  const char *copyrightNotice;
+  char *fontFamilyName;
+  const char *fontFamilyStyle;
+  char *uniqueFontName;
+  char *versionString;
+  char *fullFontName;
+  char *postscriptName;
+  char *foundryVendorID;
 };
 
-
-struct names *make_fontnames();
-char* random_majuscule_characters( int numberOfCharacters );
-char* random_minuscule_characters( int numberOfCharacters );
-char* random_word();
+struct names *make_fontnames( );
+char *random_majuscule_characters( int numberOfCharacters );
+char *random_minuscule_characters( int numberOfCharacters );
+char *random_word( );
 BUFFER *mmap_file( char *filename );
 POSITIONS *count_lines( BUFFER *data );
-char *word_from_pos( char* data );
-
+char *word_from_pos( char *data );
 
 extern BUFFER *dict_file;
 extern POSITIONS *dict_lines;
-
 
 #define __names_include
 #endif

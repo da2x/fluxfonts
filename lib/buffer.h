@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   Copyright 2012, Daniel Nebdal
   All rights reserved.
 
@@ -33,7 +33,6 @@
 
 */
 
-
 #ifndef __buffer_included
 
 #include <errno.h>
@@ -41,34 +40,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 #include <sys/types.h>
 
-
 typedef struct st_buffer {
-   uint8_t  *data;
-    size_t  size;
-    size_t  position;
+  uint8_t *data;
+  size_t size;
+  size_t position;
 } BUFFER;
-
 
 typedef struct st_lineBuffer {
   int *positions;
   size_t count;
 } POSITIONS;
 
-
-BUFFER* makebuffer( int size );
-void* get_current( BUFFER *buf );
-void* buffer_alloc( BUFFER *buf, int size );
+BUFFER *makebuffer( int size );
+void *get_current( BUFFER *buf );
+void *buffer_alloc( BUFFER *buf, int size );
 size_t get_offset( BUFFER *buf, void *ptr );
 void insert_buffer( BUFFER *target, BUFFER *source );
-uint8_t*  put_int8( BUFFER *buf, uint8_t value );
-uint16_t* put_int16( BUFFER *buf, uint16_t value );
+uint8_t *put_int8( BUFFER *buf, uint8_t value );
+uint16_t *put_int16( BUFFER *buf, uint16_t value );
 void free_buffer( BUFFER *buf );
 void free_positions( POSITIONS *pos );
-void* copy_string_to_buffer( BUFFER *buf, char *string );
-
+void *copy_string_to_buffer( BUFFER *buf, char *string );
 
 #define __buffer_included
 #endif

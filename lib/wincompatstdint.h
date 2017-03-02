@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2017, Daniel Aleksandersen
+  Copyright 2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,32 +32,11 @@
 
 */
 
-#ifndef __cmap_include
-
 #if defined( _WIN32 ) || defined( _WIN64 )
-#include <winsock.h>
-#else
-#include <arpa/inet.h>
-#endif
 
-#include "../buffer.h"
+#define R_OK 4
+#define W_OK 2
+#define X_OK 0 // not supported on Windows, check file existance instead
+#define F_OK 0
 
-typedef struct st_otf_table_post {
-  struct {
-    uint16_t major;
-    uint16_t minor;
-  } version;
-  int32_t italicAngle;
-  int16_t underlinePosition;
-  int16_t underlineThickness;
-  uint32_t isFixedPitch;
-  uint32_t minMemType42;
-  uint32_t maxMemType42;
-  uint32_t minMemType1;
-  uint32_t maxMemType1;
-} __attribute__( ( packed ) ) OTF_TABLE_POST;
-
-BUFFER *set_table_post( void );
-
-#define __cmapp_include
 #endif

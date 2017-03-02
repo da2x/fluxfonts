@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,14 +32,19 @@
 
 */
 
+#include <stdint.h>
+
+#if defined( _WIN32 ) || defined( _WIN64 )
+typedef uint16_t wchar_t;
+#endif
 
 #include "head.h"
-
 
 BUFFER *set_table_head( void ) {
 
   BUFFER *head_buf = makebuffer( sizeof( OTF_TABLE_HEAD ) );
-  OTF_TABLE_HEAD *t_headtable = buffer_alloc( head_buf, sizeof( OTF_TABLE_HEAD ) );
+  OTF_TABLE_HEAD *t_headtable =
+      buffer_alloc( head_buf, sizeof( OTF_TABLE_HEAD ) );
   t_headtable->majorVersion = htons( 1 );
   t_headtable->minorVersion = 0;
   t_headtable->majorRevision = htons( 1 );
@@ -47,7 +52,7 @@ BUFFER *set_table_head( void ) {
   t_headtable->magicNumber = htonl( 0x5F0F3CF5 );
   t_headtable->flags = 0;
   t_headtable->unitsPerEm = htons( 1600 );
-  t_headtable->created_b =  htonl( 0xCC34D839 );
+  t_headtable->created_b = htonl( 0xCC34D839 );
   t_headtable->created_a = 0;
   t_headtable->modified_b = htonl( 0xCC34D839 );
   t_headtable->modified_a = 0;

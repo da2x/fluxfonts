@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,14 +32,19 @@
 
 */
 
+#include <stdint.h>
+
+#if defined( _WIN32 ) || defined( _WIN64 )
+typedef uint16_t wchar_t;
+#endif
 
 #include "post.h"
-
 
 BUFFER *set_table_post( void ) {
 
   BUFFER *post_buf = makebuffer( sizeof( OTF_TABLE_POST ) );
-  OTF_TABLE_POST *t_posttable = buffer_alloc( post_buf, sizeof( OTF_TABLE_POST ) );
+  OTF_TABLE_POST *t_posttable =
+      buffer_alloc( post_buf, sizeof( OTF_TABLE_POST ) );
   t_posttable->version.major = htons( 3 );
   t_posttable->italicAngle = htonl( 0 );
   t_posttable->underlinePosition = htons( -75 );

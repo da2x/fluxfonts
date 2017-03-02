@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,9 +32,12 @@
 
 */
 
+#include <stdint.h>
+#if defined( _WIN32 ) || defined( _WIN64 )
+typedef uint16_t wchar_t;
+#endif
 
 #include "opentype.h"
-
 
 BUFFER *assemble_opentype_font( struct names *font_names ) {
 
@@ -44,7 +47,8 @@ BUFFER *assemble_opentype_font( struct names *font_names ) {
   /* Offset table (identifier)
    * Most values are set after creating all other tables
    */
-  OTF_OFFSET_TABLE *offset_table = buffer_alloc( fontbuffer, sizeof( OTF_OFFSET_TABLE ) );
+  OTF_OFFSET_TABLE *offset_table =
+      buffer_alloc( fontbuffer, sizeof( OTF_OFFSET_TABLE ) );
   memcpy( &offset_table->versiontag.tag, "OTTO", 4 );
 
   /* Table record entries
@@ -52,34 +56,46 @@ BUFFER *assemble_opentype_font( struct names *font_names ) {
    * ->offset and ->length is set when tables are inserted.
    */
   size_t before_tables = fontbuffer->position;
-  OTF_TABLE_RECORD *tablerecord_cff  = alloc_table_record_entry( fontbuffer, "CFF " );
-  OTF_TABLE_RECORD *tablerecord_os2  = alloc_table_record_entry( fontbuffer, "OS/2" );
-  OTF_TABLE_RECORD *tablerecord_cmap = alloc_table_record_entry( fontbuffer, "cmap" );
-  OTF_TABLE_RECORD *tablerecord_head = alloc_table_record_entry( fontbuffer, "head" );
-  OTF_TABLE_RECORD *tablerecord_hhea = alloc_table_record_entry( fontbuffer, "hhea" );
-  OTF_TABLE_RECORD *tablerecord_hmtx = alloc_table_record_entry( fontbuffer, "hmtx" );
-  OTF_TABLE_RECORD *tablerecord_maxp = alloc_table_record_entry( fontbuffer, "maxp" );
-  OTF_TABLE_RECORD *tablerecord_name = alloc_table_record_entry( fontbuffer, "name" );
-  OTF_TABLE_RECORD *tablerecord_post = alloc_table_record_entry( fontbuffer, "post" );
+  OTF_TABLE_RECORD *tablerecord_cff =
+      alloc_table_record_entry( fontbuffer, "CFF " );
+  OTF_TABLE_RECORD *tablerecord_os2 =
+      alloc_table_record_entry( fontbuffer, "OS/2" );
+  OTF_TABLE_RECORD *tablerecord_cmap =
+      alloc_table_record_entry( fontbuffer, "cmap" );
+  OTF_TABLE_RECORD *tablerecord_head =
+      alloc_table_record_entry( fontbuffer, "head" );
+  OTF_TABLE_RECORD *tablerecord_hhea =
+      alloc_table_record_entry( fontbuffer, "hhea" );
+  OTF_TABLE_RECORD *tablerecord_hmtx =
+      alloc_table_record_entry( fontbuffer, "hmtx" );
+  OTF_TABLE_RECORD *tablerecord_maxp =
+      alloc_table_record_entry( fontbuffer, "maxp" );
+  OTF_TABLE_RECORD *tablerecord_name =
+      alloc_table_record_entry( fontbuffer, "name" );
+  OTF_TABLE_RECORD *tablerecord_post =
+      alloc_table_record_entry( fontbuffer, "post" );
   size_t after_tables = fontbuffer->position;
-
 
   struct cff_result *cff_res = set_table_cff( font_names );
   BUFFER *cff_buffer = cff_res->cffData;
 
-  OTF_TABLE_HEAD *table_head =  insert_full_table( fontbuffer, tablerecord_head, set_table_head() );
-  insert_full_table( fontbuffer, tablerecord_hhea, set_table_hhea() );
-  insert_full_table( fontbuffer, tablerecord_maxp, set_table_maxp( cff_res->indexChars->count ) );
-  insert_full_table( fontbuffer, tablerecord_os2 , set_table_os2( font_names ) );
-  insert_full_table( fontbuffer, tablerecord_hmtx, set_table_hmtx() );
-  insert_full_table( fontbuffer, tablerecord_name, set_table_name( font_names ) );
-  insert_full_table( fontbuffer, tablerecord_cmap, set_table_cmap() );
-  insert_full_table( fontbuffer, tablerecord_post, set_table_post());
-  insert_full_table( fontbuffer, tablerecord_cff, cff_buffer);
+  OTF_TABLE_HEAD *table_head =
+      insert_full_table( fontbuffer, tablerecord_head, set_table_head( ) );
+  insert_full_table( fontbuffer, tablerecord_hhea, set_table_hhea( ) );
+  insert_full_table( fontbuffer, tablerecord_maxp,
+                     set_table_maxp( cff_res->indexChars->count ) );
+  insert_full_table( fontbuffer, tablerecord_os2, set_table_os2( font_names ) );
+  insert_full_table( fontbuffer, tablerecord_hmtx, set_table_hmtx( ) );
+  insert_full_table( fontbuffer, tablerecord_name,
+                     set_table_name( font_names ) );
+  insert_full_table( fontbuffer, tablerecord_cmap, set_table_cmap( ) );
+  insert_full_table( fontbuffer, tablerecord_post, set_table_post( ) );
+  insert_full_table( fontbuffer, tablerecord_cff, cff_buffer );
   free( cff_res );
 
   /* Set the table records (immediately following the offset table [below]) */
-  buffer_alloc( fontbuffer, 4 - ( fontbuffer->position % 4 ) ); /* Pad to a multiple of 4 */
+  buffer_alloc( fontbuffer,
+                4 - ( fontbuffer->position % 4 ) ); /* Pad to a multiple of 4 */
   set_table_records( fontbuffer, tablerecord_cff );
   set_table_records( fontbuffer, tablerecord_head );
   set_table_records( fontbuffer, tablerecord_hhea );
@@ -91,73 +107,160 @@ BUFFER *assemble_opentype_font( struct names *font_names ) {
   set_table_records( fontbuffer, tablerecord_post );
 
   /* Set the offset table (identifier) at the start of the file */
-  offset_table->numTables =     htons( ( uint16_t ) ( after_tables - before_tables ) / sizeof( OTF_TABLE_RECORD ) );
-  offset_table->searchRange =   htons( ( uint16_t ) util_maxpow2( ntohs( offset_table->numTables ) * 16 ) );
-  offset_table->entrySelector = htons( ( uint16_t ) log2( util_maxpow2( ntohs(offset_table->numTables ) ) ) );
-  offset_table->rangeShift =    htons( ntohs( offset_table->numTables ) * 16 - ntohs( offset_table->searchRange ) );
+  offset_table->numTables =
+      htons( ( uint16_t )( after_tables - before_tables ) /
+             sizeof( OTF_TABLE_RECORD ) );
+  offset_table->searchRange =
+      htons( (uint16_t) util_maxpow2( ntohs( offset_table->numTables ) * 16 ) );
+  offset_table->entrySelector = htons(
+      (uint16_t) log2( util_maxpow2( ntohs( offset_table->numTables ) ) ) );
+  offset_table->rangeShift = htons( ntohs( offset_table->numTables ) * 16 -
+                                    ntohs( offset_table->searchRange ) );
 
   /* Set the file checksum in the HEAD table
-   * Calculated by subtracting the checksum for the entire file from a magical constant.
+   * Calculated by subtracting the checksum for the entire file from a magical
+   * constant.
    */
-  table_head->checkSumAdjustment = htonl( 0xB1B0AFBA - calc_table_checksum( fontbuffer->data, fontbuffer->position ) );
+  table_head->checkSumAdjustment =
+      htonl( 0xB1B0AFBA -
+             calc_table_checksum( fontbuffer->data, fontbuffer->position ) );
 
   return fontbuffer;
 }
 
+void *insert_full_table( BUFFER *complete_font, OTF_TABLE_RECORD *head_entry,
+                         BUFFER *insert_me ) {
+  buffer_alloc( complete_font, 4 - ( complete_font->position %
+                                     4 ) ); /* Pad to a multiple of 4 */
 
-void *insert_full_table( BUFFER *complete_font, OTF_TABLE_RECORD *head_entry, BUFFER *insert_me ) {
-	buffer_alloc( complete_font, 4 - ( complete_font->position % 4 ) ); /* Pad to a multiple of 4 */
-
-	void *table = &complete_font->data[complete_font->position];
-	head_entry->offset = complete_font->position;
-	head_entry->length = insert_me->position;
-	insert_buffer( complete_font, insert_me );
-	free_buffer( insert_me );
-	return table;
+  void *table = &complete_font->data[complete_font->position];
+  head_entry->offset = complete_font->position;
+  head_entry->length = insert_me->position;
+  insert_buffer( complete_font, insert_me );
+  free_buffer( insert_me );
+  return table;
 }
-
 
 int font_generator( void ) {
 
+  int failed = 0;
+
   /* Assign a random font name */
-  struct names *font_names = make_fontnames();
+  struct names *font_names = make_fontnames( );
 
   /* Where to store the file */
-  char *filepath = ( char* ) calloc( ( strlen( fontdir ) + strlen( font_names->postscriptName ) + strlen ( FONTFILE_EXTENSION ) + 1 ), sizeof( char ) );
+  int filenamelen =
+      strlen( font_names->postscriptName ) + strlen( FONTFILE_EXTENSION ) + 1;
+  char *filename = (char *) calloc( filenamelen, sizeof( char ) );
+  strncat( filename, font_names->postscriptName, filenamelen );
+  strncat( filename, FONTFILE_EXTENSION, filenamelen );
+
+  int filepathlen = strlen( fontdir ) + strlen( filename ) + 1;
+  char *filepath = (char *) calloc( filepathlen, sizeof( char ) );
   strncpy( filepath, fontdir, strlen( fontdir ) );
-  strcat( filepath, font_names->postscriptName );
-  strcat( filepath, FONTFILE_EXTENSION );
+  strncat( filepath, filename, filepathlen );
 
   /* Font output file exists. Never be destructive. */
-  if ( access( filepath, F_OK ) == 0 ) {
-    return EEXIST;
-  }
+  if ( access( filepath, F_OK ) != 0 ) {
 
-  /* Assemble the actual font work */
-  BUFFER *fontbuffer = assemble_opentype_font( font_names );
+    /* Assemble the actual font work */
+    BUFFER *fontbuffer = assemble_opentype_font( font_names );
 
-  /* Write out the buffer to the font file directly to installation directory */
-  int otf_output_file = open( filepath, O_RDWR|O_CREAT|O_EXCL, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH );
+/* Write out the buffer to the font file directly to installation directory */
+#if defined( _WIN32 ) || defined( _WIN64 )
+    int otf_output_file =
+        _open( filepath, _O_RDWR | _O_CREAT | _O_EXCL | _O_BINARY,
+               _S_IREAD | _S_IWRITE );
+#else
+    int otf_output_file = open( filepath, O_RDWR | O_CREAT | O_EXCL,
+                                S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
+#endif
 
-  if ( write( otf_output_file, fontbuffer->data, fontbuffer->position ) == fontbuffer->position ) {
+    if ( otf_output_file >= 0 ) {
 
-    /* Record font installation to install log */
-    int font_list_file = open( fontsetlist, O_RDWR|O_CREAT|O_APPEND, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP );
-    ssize_t font_list_file_writesize = write( font_list_file, font_names->postscriptName, strlen( font_names->postscriptName ) );
-    ssize_t font_list_file_writenlsize = write( font_list_file, "\n", 1 );
+/* Record font installation to install log */
+#if defined( _WIN32 ) || defined( _WIN64 )
+      int font_list_file = _open( fontsetlist, _O_RDWR | _O_CREAT | _O_APPEND,
+                                  _S_IREAD | _S_IWRITE );
+#else
+      int font_list_file = open( fontsetlist, O_RDWR | O_CREAT | O_APPEND,
+                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP );
+#endif
+      if ( font_list_file >= 0 ) {
+        int otf_output_file_written;
 
-    if ( ( font_list_file_writesize + font_list_file_writenlsize ) != ( strlen( font_names->postscriptName ) + 1 ) ) {
-      syslog( LOG_ERR, "Failed to log successful installation of %s.%s in %s. The font was installed but will not be removed as part of normal operation.", font_names->postscriptName, FONTFILE_EXTENSION, fontsetlist );
+        otf_output_file_written =
+            write( otf_output_file, fontbuffer->data, fontbuffer->position );
+
+        /* Work-around for FontCache being overly eager and locking new fonts
+           while they’re being written */
+        if ( otf_output_file_written != fontbuffer->position ) {
+          unlink( filepath );
+          otf_output_file_written =
+              write( otf_output_file, fontbuffer->data, fontbuffer->position );
+          if ( otf_output_file_written != fontbuffer->position ) {
+            unlink( filepath );
+            failed = 1;
+          }
+        }
+
+        int font_list_file_written;
+
+        if ( failed == 0 ) {
+          font_list_file_written =
+              write( font_list_file, font_names->postscriptName,
+                     strlen( font_names->postscriptName ) );
+          write( font_list_file, "\n", 1 );
+          if ( font_list_file_written !=
+               strlen( font_names->postscriptName ) ) {
+            unlink( filepath );
+            failed = 1;
+          }
+
+#if defined( _WIN32 ) || defined( _WIN64 )
+          if ( failed == 0 ) {
+
+            char *hKeyFontsDir =
+                "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts";
+
+            int hKeyValuePathlen = strlen( font_names->postscriptName ) +
+                                   strlen( " (TrueType)" ) + 1;
+            char *hKeyValuePath = calloc( hKeyValuePathlen, sizeof( char ) );
+
+            strncat( hKeyValuePath, font_names->postscriptName,
+                     hKeyValuePathlen );
+            strncat( hKeyValuePath, " (TrueType)", hKeyValuePathlen );
+
+            HKEY fontskey;
+#ifdef _WIN32
+            RegOpenKeyExA( HKEY_LOCAL_MACHINE, hKeyFontsDir, 0,
+                           KEY_WOW64_32KEY | KEY_ALL_ACCESS, &fontskey );
+#endif
+#ifdef _WIN64
+            RegOpenKeyExA( HKEY_LOCAL_MACHINE, hKeyFontsDir, 0,
+                           KEY_WOW64_64KEY | KEY_ALL_ACCESS, &fontskey );
+#endif
+
+            if ( fontskey != NULL ) {
+              RegSetValueExA( fontskey, hKeyValuePath, 0, REG_SZ, filename,
+                              strlen( filename ) + 1 );
+              RegCloseKey( fontskey );
+            } else {
+              /* Can't register the font, remove it. */
+              unlink( filepath );
+            }
+
+            free( hKeyValuePath );
+          }
+#endif
+        }
+      }
+
+      close( font_list_file );
+      close( otf_output_file );
     }
 
-    close( font_list_file );
-    close( otf_output_file );
-  }
-
-  else {
-    /* something went wrong with the write, delete the font */
-    close(  otf_output_file );
-    unlink( filepath );
+    free_buffer( fontbuffer );
   }
 
   /* Free the last buffers */
@@ -167,8 +270,8 @@ int font_generator( void ) {
   free( font_names->postscriptName );
   free( font_names->foundryVendorID );
   free( font_names );
-  free_buffer( fontbuffer );
+
   free( filepath );
 
-  return 0;
+  return failed;
 }

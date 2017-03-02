@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,14 +32,19 @@
 
 */
 
+#include <stdint.h>
+
+#if defined( _WIN32 ) || defined( _WIN64 )
+typedef uint16_t wchar_t;
+#endif
 
 #include "hhea.h"
-
 
 BUFFER *set_table_hhea( void ) {
 
   BUFFER *hhea_buf = makebuffer( sizeof( OTF_TABLE_HHEA ) );
-  OTF_TABLE_HHEA *t_hheatable = buffer_alloc( hhea_buf, sizeof( OTF_TABLE_HHEA ) );
+  OTF_TABLE_HHEA *t_hheatable =
+      buffer_alloc( hhea_buf, sizeof( OTF_TABLE_HHEA ) );
   t_hheatable->version.major = htons( 1 );
   t_hheatable->ascender = htons( 732 );
   t_hheatable->descender = htons( -268 );

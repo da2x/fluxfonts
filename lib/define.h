@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2016, Daniel Aleksandersen
+  Copyright 2012–2017, Daniel Aleksandersen
   All rights reserved.
 
   This file is part of Fluxfonts.
@@ -32,7 +32,6 @@
 
 */
 
-
 #define PROGRAM_NAME "fluxfonts"
 
 #define REVERSE_DOMAIN "no.priv.daniel.fluxfonts"
@@ -41,5 +40,5 @@
 
 #define FONTFILE_EXTENSION ".otf"
 
-#define BUFSIZE 1024*2
+#define BUFSIZE 1024 * 2
 #define WORDLEN_MAX 45
