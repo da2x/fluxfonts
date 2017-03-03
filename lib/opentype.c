@@ -169,8 +169,8 @@ int font_generator( void ) {
 /* Write out the buffer to the font file directly to installation directory */
 #if defined( _WIN32 ) || defined( _WIN64 )
     int otf_output_file =
-        _open( filepath, _O_RDWR | _O_CREAT | _O_EXCL | _O_BINARY,
-               _S_IREAD | _S_IWRITE );
+        (int) CreateFile( filepath, GENERIC_READ | GENERIC_WRITE, 0, NULL,
+                          CREATE_ALWAYS, 0, NULL );
 #else
     int otf_output_file = open( filepath, O_RDWR | O_CREAT | O_EXCL,
                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
@@ -189,8 +189,16 @@ int font_generator( void ) {
       if ( font_list_file >= 0 ) {
         int otf_output_file_written;
 
+#if defined( _WIN32 ) || defined( _WIN64 )
+        otf_output_file_written = WriteFile( otf_output_file, fontbuffer->data,
+                                             fontbuffer->position, NULL, NULL );
+        /* Cheating, but sufficient here. */
+        if ( otf_output_file_written > 0 )
+          otf_output_file_written = fontbuffer->position;
+#else
         otf_output_file_written =
             write( otf_output_file, fontbuffer->data, fontbuffer->position );
+#endif
 
         /* Work-around for FontCache being overly eager and locking new fonts
            while they’re being written */
@@ -257,7 +265,12 @@ int font_generator( void ) {
       }
 
       close( font_list_file );
+
+#if defined( _WIN32 ) || defined( _WIN64 )
+      CloseHandle( otf_output_file );
+#else
       close( otf_output_file );
+#endif
     }
 
     free_buffer( fontbuffer );
