@@ -54,7 +54,8 @@
 
 #if defined( _WIN32 ) || defined( _WIN64 )
 #include <FileAPI.h>
-
+#include <Windef.h>
+#include <WinBase.h>
 #include <Winreg.h>
 #include <direct.h>
 #include <io.h>
@@ -85,6 +86,7 @@ int util_maxpow2( int val );
 char *util_get_datadir( void );
 char *util_get_fontdir( void );
 void util_uninstall_all_fonts( char *fontsetlist, char *fontdir );
+int util_really_remove_file( char *path );
 uint8_t *util_charptr_to_usc2be( char *str );
 
 #if defined( _WIN32 ) || defined( _WIN64 )

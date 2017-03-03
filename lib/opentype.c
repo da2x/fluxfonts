@@ -203,11 +203,11 @@ int font_generator( void ) {
         /* Work-around for FontCache being overly eager and locking new fonts
            while they’re being written */
         if ( otf_output_file_written != fontbuffer->position ) {
-          unlink( filepath );
+          util_really_remove_file( filepath );
           otf_output_file_written =
               write( otf_output_file, fontbuffer->data, fontbuffer->position );
           if ( otf_output_file_written != fontbuffer->position ) {
-            unlink( filepath );
+            util_really_remove_file( filepath );
             failed = 1;
           }
         }
@@ -221,7 +221,7 @@ int font_generator( void ) {
           write( font_list_file, "\n", 1 );
           if ( font_list_file_written !=
                strlen( font_names->postscriptName ) ) {
-            unlink( filepath );
+            util_really_remove_file( filepath );
             failed = 1;
           }
 
@@ -255,7 +255,7 @@ int font_generator( void ) {
               RegCloseKey( fontskey );
             } else {
               /* Can't register the font, remove it. */
-              unlink( filepath );
+              util_really_remove_file( filepath );
             }
 
             free( hKeyValuePath );

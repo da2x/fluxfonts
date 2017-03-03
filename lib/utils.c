@@ -284,7 +284,8 @@ void util_uninstall_all_fonts( char *fontsetlist, char *fontdir ) {
       strncat( path, fontname, pathlen );
       strncat( path, FONTFILE_EXTENSION, pathlen );
 
-      unlink( path );
+      util_really_remove_file( path );
+
       free( path );
 
 #if defined( _WIN32 ) || defined( _WIN64 )
@@ -321,6 +322,44 @@ void util_uninstall_all_fonts( char *fontsetlist, char *fontdir ) {
     fclose( fontsetlist_file );
     unlink( fontsetlist );
   }
+}
+
+int util_really_remove_file( char *path ) {
+  int deleted = 0;
+
+#if defined( _WIN32 ) || defined( _WIN64 )
+
+  deleted = DeleteFileA( path );
+  if ( deleted <= 0 ) {
+    Sleep( 1750 );
+    deleted = DeleteFileA( path );
+    if ( deleted <= 0 ) {
+      Sleep( 2500 );
+      deleted = DeleteFileA( path );
+      if ( deleted <= 0 ) {
+        MoveFileExA( path, NULL, MOVEFILE_DELAY_UNTIL_REBOOT );
+        return -1;
+      }
+    }
+  }
+#else
+  deleted = unlink( path );
+
+  if ( deleted < 0 ) {
+    sleep( 1.75 );
+    deleted = unlink( path );
+    if ( deleted < 0 ) {
+      sleep( 2.5 );
+      deleted = unlink( path );
+
+      if ( deleted < 0 ) {
+        return -1;
+      }
+    }
+  }
+#endif
+
+  return 1;
 }
 
 int util_power_supply_online( void ) {
