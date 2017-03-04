@@ -37,7 +37,7 @@ REVERSE_DOMAIN = no.priv.daniel.$(LNAME)
 SHORTDESC = $(NAME), a continual font generator for increased privacy.
 LONGDDESC = The $(PROGRAM) daemon for $(SHORTDESC)
 
-VERSION = 1.2
+VERSION = 2.0
 AUTHOR = Daniel Aleksandersen
 
 OBJS = lib/buffer.o\
