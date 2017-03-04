@@ -346,10 +346,10 @@ int util_really_remove_file( char *path ) {
   deleted = unlink( path );
 
   if ( deleted < 0 ) {
-    sleep( 1.75 );
+    sleep( 2 );
     deleted = unlink( path );
     if ( deleted < 0 ) {
-      sleep( 2.5 );
+      sleep( 3 );
       deleted = unlink( path );
 
       if ( deleted < 0 ) {
