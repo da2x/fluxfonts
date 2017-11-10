@@ -5,6 +5,9 @@
   Copyright 2012, Daniel Nebdal
   All rights reserved.
 
+  SPDX-License-Identifier: BSD-2-Clause-FreeBSD
+  License-Filename: COPYING
+
   This file is part of Fluxfonts.
 
   Redistribution and use in source and binary forms, with or without

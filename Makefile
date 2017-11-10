@@ -2,6 +2,9 @@
 # Copyright 2012–2017, Daniel Aleksandersen
 # All rights reserved.
 #
+# SPDX-License-Identifier: BSD-2-Clause-FreeBSD
+# License-Filename: COPYING
+#
 # This file is part of Fluxfonts.
 #
 # Redistribution and use in source and binary forms, with or without
