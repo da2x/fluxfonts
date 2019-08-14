@@ -90,7 +90,6 @@ endif
 ifeq ($(shell sh -c 'uname -s'),Darwin)
 INSTALLFLAGS = -S
 LDFLAGS += -liconv
-OTHARCH = -arch x86_64 -arch i386
 PACKAGE_OSX = $(NAME)-$(VERSION).pkg
 TEMPDIR = /private/var/tmp
 endif
@@ -151,52 +150,52 @@ all: build
 build: $(PROGRAM)
 
 lib/buffer.o: lib/buffer.c
-	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/buffer.c
+	$(CC) $(CFLAGS) -o $@ -c lib/buffer.c
 
 lib/familyname.o: lib/familyname.c lib/buffer.h lib/define.h lib/utils.h
-	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/familyname.c
+	$(CC) $(CFLAGS) -o $@ -c lib/familyname.c
 
 lib/opentype.o: lib/opentype.c lib/buffer.h lib/define.h lib/familyname.h lib/tables/*.h
-	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/opentype.c
+	$(CC) $(CFLAGS) -o $@ -c lib/opentype.c
 
 lib/utils.o: lib/utils.c lib/define.h
-	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/utils.c
+	$(CC) $(CFLAGS) -o $@ -c lib/utils.c
 
 lib/tables/cff.o: lib/tables/cff.c lib/buffer.h lib/familyname.h
-	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/cff.c
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/cff.c
 
 lib/tables/cmap.o: lib/tables/cmap.c lib/buffer.h
-	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/cmap.c
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/cmap.c
 
 lib/tables/head.o: lib/tables/head.c lib/buffer.h
-	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/head.c
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/head.c
 
 lib/tables/hhea.o: lib/tables/hhea.c lib/buffer.h
-	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/hhea.c
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/hhea.c
 
 lib/tables/hmtx.o: lib/tables/hmtx.c lib/buffer.h
-	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/hmtx.c
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/hmtx.c
 
 lib/tables/maxp.o: lib/tables/maxp.c lib/buffer.h
-	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/maxp.c
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/maxp.c
 
 lib/tables/name.o: lib/tables/name.c lib/buffer.h lib/familyname.h
-	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/name.c
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/name.c
 
 lib/tables/os2.o: lib/tables/os2.c lib/buffer.h lib/familyname.h
-	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/os2.c
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/os2.c
 
 lib/tables/post.o: lib/tables/post.c lib/buffer.h
-	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/post.c
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/post.c
 
 lib/tables/tables.o: lib/tables/tables.c lib/buffer.h
-	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c lib/tables/tables.c
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/tables.c
 
 main.o: main.c lib/define.h lib/buffer.h lib/familyname.h lib/utils.h lib/opentype.h
-	$(CC) $(CFLAGS) $(OTHARCH) -o $@ -c main.c
+	$(CC) $(CFLAGS) -o $@ -c main.c
 
 $(PROGRAM): $(OBJS)
-	$(CC) $(CFLAGS) $(OTHARCH) $(OBJS) -o $(PROGRAM) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(PROGRAM) $(LDFLAGS)
 
 install: build install-docs
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(BINDIR)
