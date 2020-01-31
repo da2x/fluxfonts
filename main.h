@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2017, Daniel Aleksandersen
+  Copyright 2012–2020, Daniel Aleksandersen
   All rights reserved.
 
   SPDX-License-Identifier: BSD-2-Clause-FreeBSD
@@ -56,6 +56,10 @@ typedef uint16_t wchar_t;
 #include "lib/utils.h"
 
 #include "lib/opentype.h"
+
+#ifdef __linux__
+#include <sys/prctl.h>
+#endif
 
 #ifdef SYSTEMD
 #include <systemd/sd-daemon.h>

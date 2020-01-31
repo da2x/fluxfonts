@@ -1,7 +1,7 @@
 /*
 
   Fluxfonts – a continual font generator for increased privacy
-  Copyright 2012–2017, Daniel Aleksandersen
+  Copyright 2012–2020, Daniel Aleksandersen
   All rights reserved.
 
   SPDX-License-Identifier: BSD-2-Clause-FreeBSD
@@ -77,9 +77,14 @@ int main( ) {
   if ( fontdir == NULL )
     fontdir = util_get_fontdir( );
 
-/* Let systemd know the service is ready. */
+  /* Let systemd know the service is ready. */
 #ifdef SYSTEMD
   sd_notify( 0, "READY=1" );
+#endif
+
+  /* be power-efficient. let processor sleep longer. */
+#ifdef __linux__
+  prctl(PR_SET_TIMERSLACK, 4000000000);
 #endif
 
   /* Main loop that continuously makes and replaces new fonts. */
