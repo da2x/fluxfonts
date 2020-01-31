@@ -138,6 +138,8 @@ Type=notify
 ExecStart=$(BINDIR)/$(PROGRAM)
 PIDFile=/run/$(NAME).pid
 Nice=15
+ReadWritePath=/usr/local/share/fonts/ /var/lib/fluxfonts/
+ProtectSystem=true
 
 [Install]
 WantedBy=multi-user.target
