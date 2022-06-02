@@ -208,7 +208,7 @@ install: build install-docs
 
 install-docs:
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(DOCDIR)
-	$(INSTALL_PROGRAM) $(INSTALLFLAGS) $(DOCS) $(DESTDIR)$(DOCDIR)
+	$(INSTALL_PROGRAM) -m 644 $(INSTALLFLAGS) $(DOCS) $(DESTDIR)$(DOCDIR)
 
 install-daemon: $(CONFIG_LAUNCHD) $(CONFIG_SYSTEMD)
 
@@ -221,7 +221,7 @@ uninstall: $(DECONFIG_LAUNCHD) $(DECONFIG_SYSTEMD)
 
 configure-launchd:
 	-rm $(DISTPKGDIR)$(LAUNCHDCONF)
-	$(INSTALL_PROGRAM) -d $(DISTPKGDIR)$(LAUNCHDDIR)
+	$(INSTALL_PROGRAM) -m 644 -d $(DISTPKGDIR)$(LAUNCHDDIR)
 	$(LAUNCHDCONF-SRC)
 
 install-launchd: configure-launchd
@@ -240,7 +240,7 @@ configure-systemd:
 
 install-systemd: configure-systemd
 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(SYSTEMDDIR)
-	$(INSTALL_PROGRAM) $(DISTPKGDIR)$(SYSTEMDCONF) $(DESTDIR)$(SYSTEMDDIR)
+	$(INSTALL_PROGRAM) -m 644 $(DISTPKGDIR)$(SYSTEMDCONF) $(DESTDIR)$(SYSTEMDDIR)
 
 deconfigure-systemd:
 	-rm $(SYSTEMDCONF)
