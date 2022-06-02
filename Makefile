@@ -136,7 +136,7 @@ Description=$(SHORTDESC)
 [Service]
 Type=notify
 ExecStart=$(BINDIR)/$(PROGRAM)
-PIDFile=/run/$(NAME).pid
+PIDFile=/run/$(LNAME).pid
 Nice=15
 PrivateDevices=true
 ProtectKernelTunables=true
