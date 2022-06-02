@@ -1,5 +1,5 @@
 # Fluxfonts – a continual font generator for increased privacy
-# Copyright 2012–2017, Daniel Aleksandersen
+# Copyright 2012–2022, Daniel Aleksandersen
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-2-Clause-FreeBSD
@@ -40,7 +40,7 @@ REVERSE_DOMAIN = no.priv.daniel.$(LNAME)
 SHORTDESC = $(NAME), a continual font generator for increased privacy.
 LONGDDESC = The $(PROGRAM) daemon for $(SHORTDESC)
 
-VERSION = 2.0
+VERSION = 2.1
 AUTHOR = Daniel Aleksandersen
 
 OBJS = lib/buffer.o\
