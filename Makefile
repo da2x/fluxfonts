@@ -142,7 +142,7 @@ PrivateDevices=true
 ProtectKernelTunables=true
 ProtectControlGroups=true
 ProtectSystem=strict
-ReadWritePath=-/run/ -/usr/local/share/fonts/ +/var/lib/fluxfonts/
+ReadWritePaths=/run/ +/usr/local/share/fonts/ +/var/lib/fluxfonts/
 
 [Install]
 WantedBy=multi-user.target
