@@ -102,7 +102,7 @@ SERVICEUTIL = /usr/sbin/service
 INITDEFUTIL = /sbin/insserv
 OSXPKGBUILD = /usr/bin/pkgbuild
 CC ?= clang
-CFLAGS += -Wall -std=c99
+CFLAGS += -Wall -std=c17
 
 # launchd or systemd based on available directories
 ifneq ($(wildcard $(SYSTEMDDIR)),)
