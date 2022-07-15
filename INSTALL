@@ -7,7 +7,7 @@ Debian/Ubuntu:
 * systemd-dev
 
 Windows:
-* Visual Studio 2017 with clang
+* Visual Studio 2022 with clang and nmake
 * Nullsoft Scriptable Installer (NSIS)
 
 
@@ -27,15 +27,16 @@ will need to configure a service or cron to run the daemon on boot.
 
 Building on Windows
 
-1. Open and build the solution
+1. nmake -f Makefile.nmake Release\fluxfonts.exe
+2. nmake -f Makefile.nmake Release\fluxfonts_installer.exe
 
 
 Installing on Windows
 
-1. Run fluxfonts_installer.exe
+1. Run Release\fluxfonts_installer.exe
 
 
-Notes for package  distributors
+Notes for package distributors
 
 The program service does not need to run as the root user. Create the
 required directories as part of the installation package, and the

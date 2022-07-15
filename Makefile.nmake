@@ -1,0 +1,132 @@
+# Fluxfonts – a continual font generator for increased privacy
+# Copyright 2012–2022, Daniel Aleksandersen
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-2-Clause-FreeBSD
+# License-Filename: COPYING
+#
+# This file is part of Fluxfonts.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# • Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#
+# • Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+NAME  = Fluxfonts
+LNAME = fluxfonts
+PROGRAM = $(LNAME).exe
+REVERSE_DOMAIN = no.priv.daniel.$(LNAME)
+SHORTDESC = $(NAME), a continual font generator for increased privacy.
+LONGDDESC = The $(PROGRAM) daemon for $(SHORTDESC)
+
+VERSION = 2.1
+AUTHOR = Daniel Aleksandersen
+
+OBJS = lib/buffer.o\
+       lib/familyname.o\
+       lib/opentype.o\
+       lib/utils.o\
+       lib/tables/cff.o\
+       lib/tables/cmap.o\
+       lib/tables/head.o\
+       lib/tables/hhea.o\
+       lib/tables/hmtx.o\
+       lib/tables/maxp.o\
+       lib/tables/name.o\
+       lib/tables/os2.o\
+       lib/tables/post.o\
+       lib/tables/tables.o\
+       main.o
+
+DOCS = AUTHORS COPYING README
+
+# programs and compiler
+NSIS = makensis.exe
+CC = clang.exe
+CFLAGS = -Wall -m32 -std=c17
+LDFLAGS = -m32 -lws2_32.lib -lAdvapi32.lib
+
+all: build Release/$(LNAME)_installer.exe
+
+build: Release/$(PROGRAM)
+
+lib/buffer.o: lib/buffer.c
+	$(CC) $(CFLAGS) -o $@ -c lib/buffer.c
+
+lib/familyname.o: lib/familyname.c lib/buffer.h lib/define.h lib/utils.h
+	$(CC) $(CFLAGS) -o $@ -c lib/familyname.c
+
+lib/opentype.o: lib/opentype.c lib/buffer.h lib/define.h lib/familyname.h lib/tables/*.h
+	$(CC) $(CFLAGS) -o $@ -c lib/opentype.c
+
+lib/utils.o: lib/utils.c lib/define.h
+	$(CC) $(CFLAGS) -o $@ -c lib/utils.c
+
+lib/tables/cff.o: lib/tables/cff.c lib/buffer.h lib/familyname.h
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/cff.c
+
+lib/tables/cmap.o: lib/tables/cmap.c lib/buffer.h
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/cmap.c
+
+lib/tables/head.o: lib/tables/head.c lib/buffer.h
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/head.c
+
+lib/tables/hhea.o: lib/tables/hhea.c lib/buffer.h
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/hhea.c
+
+lib/tables/hmtx.o: lib/tables/hmtx.c lib/buffer.h
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/hmtx.c
+
+lib/tables/maxp.o: lib/tables/maxp.c lib/buffer.h
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/maxp.c
+
+lib/tables/name.o: lib/tables/name.c lib/buffer.h lib/familyname.h
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/name.c
+
+lib/tables/os2.o: lib/tables/os2.c lib/buffer.h lib/familyname.h
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/os2.c
+
+lib/tables/post.o: lib/tables/post.c lib/buffer.h
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/post.c
+
+lib/tables/tables.o: lib/tables/tables.c lib/buffer.h
+	$(CC) $(CFLAGS) -o $@ -c lib/tables/tables.c
+
+main.o: main.c lib/define.h lib/buffer.h lib/familyname.h lib/utils.h lib/opentype.h
+	$(CC) $(CFLAGS) -o $@ -c main.c
+
+Release/$(PROGRAM): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $@ $(LDFLAGS)
+
+dist: Release\$(LNAME)_installer.exe
+
+Release/$(LNAME)_installer.exe: resources/nsis_installer.nsi Release/$(PROGRAM)
+	$(NSIS) resources/nsis_installer.nsi
+
+clean:
+	del $(OBJS)
+
+distclean: clean
+	del Release/$(LNAME)_installer.exe
+
+maintainer-clean: clean distclean
+	del Release/$(PROGRAM)
