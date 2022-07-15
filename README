@@ -18,7 +18,7 @@ are generated more often when not running on battery power.
 See `INSTALL` for installation instructions.
 
 The program is test compiled on FreeBSD, OS X, Ubuntu- and Debian
-GNU/Linux, and Windows. Only supported on Windows 10.
+GNU/Linux, and Windows. Only supported on Windows 10 and 11.
 
 See `CONTRIBUTING` for guidelines on and acceptance criteria for
 contributing back to the project.
